@@ -1,324 +1,533 @@
 <!DOCTYPE html>
-<html lang="en-GB">
+<html lang="en" class="scroll-smooth">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ugonna Ezenekwe — Cybersecurity &amp; GRC Analyst</title>
-<meta name="description" content="CV of Ugonna Ezenekwe, an entry level cybersecurity and GRC analyst in London. Security audits, incident analysis, NIST CSF, PCI DSS, GDPR.">
+<title>Ugonna Ezenekwe · GRC &amp; Risk Analyst | Security Controls Auditing, NIST CSF, Compliance</title>
+<meta name="description" content="Ugonna Ezenekwe is an aspiring GRC Analyst in London specialising in security controls auditing, risk assessment, gap analysis and compliance mapping across NIST CSF, PCI DSS, GDPR and SOC frameworks.">
+<meta name="author" content="Ugonna Ezenekwe">
+<meta property="og:title" content="Ugonna Ezenekwe · GRC &amp; Risk Analyst">
+<meta property="og:description" content="Security controls auditing, risk assessment and compliance mapping across NIST CSF, PCI DSS, GDPR and SOC frameworks.">
+<meta property="og:type" content="website">
+
+<!-- Tailwind CSS (CDN) -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Lucide Icons (CDN) -->
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<!-- Fonts: Archivo (display), Inter (body), IBM Plex Mono (metadata) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        bg: '#050505',
+        elev: '#0A0A0C',
+        line: '#262626',
+        linesoft: '#1A1A1C',
+        body: '#9CA3AF',
+        faint: '#6B7280',
+        accent: '#E2A63D'
+      },
+      fontFamily: {
+        display: ['Archivo', 'sans-serif'],
+        sans: ['Inter', 'sans-serif'],
+        mono: ['"IBM Plex Mono"', 'monospace']
+      }
+    }
+  }
+}
+</script>
+
 <style>
-  :root{
-    --paper:#F7F8F6;
-    --card:#FFFFFF;
-    --ink:#131B26;
-    --slate:#5A6B7E;
-    --line:#DDE3E0;
-    --pass:#0F6B54;
-    --pass-soft:#E4F0EB;
-    --amber:#8A5A12;
-    --amber-soft:#F6EDDC;
-  }
-  *{margin:0;padding:0;box-sizing:border-box}
-  html{scroll-behavior:smooth}
-  body{
-    background:var(--paper);
-    color:var(--ink);
-    font-family:'IBM Plex Sans',system-ui,sans-serif;
-    font-size:16.5px;
-    line-height:1.6;
-    -webkit-font-smoothing:antialiased;
-  }
-  .wrap{max-width:860px;margin:0 auto;padding:0 24px}
+  html { background: #050505; }
+  ::selection { background: #E2A63D; color: #050505; }
 
-  /* ---------- header ---------- */
-  header{padding:72px 0 40px;border-bottom:2px solid var(--ink)}
-  .eyebrow{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;
-    color:var(--pass);margin-bottom:18px;
-  }
-  h1{
-    font-family:'Fraunces',serif;font-weight:600;
-    font-size:clamp(38px,7vw,58px);line-height:1.04;
-    letter-spacing:-0.015em;margin-bottom:16px;
-  }
-  .tagline{max-width:56ch;color:var(--slate);font-size:17.5px}
-  .contact{margin-top:28px;display:flex;flex-wrap:wrap;gap:10px}
-  .contact a{
-    font-family:'IBM Plex Mono',monospace;font-size:13px;
-    text-decoration:none;color:var(--ink);
-    border:1px solid var(--ink);border-radius:999px;
-    padding:8px 16px;transition:background .15s,color .15s;
-  }
-  .contact a:hover,.contact a:focus-visible{background:var(--ink);color:var(--paper)}
-  .contact a:focus-visible{outline:2px solid var(--pass);outline-offset:2px}
-
-  /* ---------- sections ---------- */
-  section{padding:48px 0;border-bottom:1px solid var(--line)}
-  section:last-of-type{border-bottom:none}
-  .sec-head{
-    display:flex;align-items:baseline;gap:14px;margin-bottom:28px;
-  }
-  .sec-head h2{
-    font-family:'Fraunces',serif;font-weight:600;font-size:26px;letter-spacing:-0.01em;
-  }
-  .sec-head .ref{
-    font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--slate);
-    letter-spacing:.1em;
+  /* Fine wireframe grid backdrop for the hero */
+  .grid-bg {
+    background-image:
+      linear-gradient(to right, rgba(38,38,38,.35) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(38,38,38,.35) 1px, transparent 1px);
+    background-size: 72px 72px;
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black 30%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black 30%, transparent 75%);
   }
 
-  /* ---------- summary ---------- */
-  .summary p{max-width:68ch;margin-bottom:14px;font-size:16px}
-  .summary p:last-child{margin-bottom:0;font-weight:500}
+  /* Scroll reveal */
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    html { scroll-behavior: auto; }
+  }
 
-  /* ---------- skills ---------- */
-  .skill-row{display:grid;grid-template-columns:170px 1fr;gap:8px 20px;padding:12px 0;border-top:1px dashed var(--line)}
-  .skill-row:first-of-type{border-top:none}
-  .skill-row dt{
-    font-family:'IBM Plex Mono',monospace;font-size:12.5px;
-    text-transform:uppercase;letter-spacing:.08em;color:var(--slate);padding-top:3px;
+  /* Underline link */
+  .link-u { position: relative; }
+  .link-u::after {
+    content: ""; position: absolute; left: 0; bottom: -3px; height: 1px; width: 0;
+    background: currentColor; transition: width .3s ease;
   }
-  .skill-row dd{font-size:15.5px}
+  .link-u:hover::after { width: 100%; }
 
-  /* ---------- register entries (experience + projects) ---------- */
-  .entry{
-    background:var(--card);border:1px solid var(--line);border-radius:10px;
-    padding:24px 26px;margin-bottom:18px;
-  }
-  .entry-top{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 14px;margin-bottom:6px}
-  .entry-id{
-    font-family:'IBM Plex Mono',monospace;font-size:11.5px;
-    color:var(--slate);letter-spacing:.1em;
-  }
-  .entry h3{font-size:18.5px;font-weight:600;letter-spacing:-0.005em}
-  .entry .meta{font-size:14px;color:var(--slate)}
-  .tags{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 14px}
-  .tag{
-    font-family:'IBM Plex Mono',monospace;font-size:11.5px;
-    padding:3px 10px;border-radius:4px;
-    background:var(--pass-soft);color:var(--pass);
-  }
-  .tag.warm{background:var(--amber-soft);color:var(--amber)}
-  .entry ul{list-style:none}
-  .entry li{
-    position:relative;padding-left:22px;margin-bottom:10px;font-size:15.5px;
-  }
-  .entry li::before{
-    content:"▸";position:absolute;left:2px;color:var(--pass);font-size:13px;top:2px;
-  }
-  .entry li:last-child{margin-bottom:0}
+  /* Case study card hover */
+  .card { transition: border-color .3s ease, background-color .3s ease; }
+  .card:hover { border-color: #3f3f3f; background-color: #0C0C0F; }
 
-  /* ---------- certs ---------- */
-  .cert{display:flex;justify-content:space-between;gap:16px;padding:14px 0;border-top:1px dashed var(--line);flex-wrap:wrap}
-  .cert:first-of-type{border-top:none}
-  .cert .name{font-weight:500}
-  .cert .status{
-    font-family:'IBM Plex Mono',monospace;font-size:12px;white-space:nowrap;
-    align-self:center;padding:3px 10px;border-radius:4px;
-  }
-  .status.done{background:var(--pass-soft);color:var(--pass)}
-  .status.progress{background:var(--amber-soft);color:var(--amber)}
-
-  footer{padding:40px 0 64px;color:var(--slate);font-size:13.5px}
-  footer .stamp{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.08em}
-
-  /* motion */
-  @media (prefers-reduced-motion:no-preference){
-    header,section{animation:rise .55s ease both}
-    section:nth-of-type(1){animation-delay:.06s}
-    section:nth-of-type(2){animation-delay:.12s}
-    section:nth-of-type(3){animation-delay:.18s}
-    section:nth-of-type(4){animation-delay:.24s}
-    section:nth-of-type(5){animation-delay:.3s}
-    @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-  }
-  @media (max-width:600px){
-    header{padding:52px 0 32px}
-    .skill-row{grid-template-columns:1fr}
-    .entry{padding:20px 18px}
-  }
+  input, textarea { outline: none; }
+  input:focus, textarea:focus { border-color: #E2A63D !important; }
+  a:focus-visible, button:focus-visible { outline: 1px solid #E2A63D; outline-offset: 3px; }
 </style>
 </head>
-<body>
 
-<header>
-  <div class="wrap">
-    <p class="eyebrow">Security register · London, UK</p>
-    <h1>Ugonna Ezenekwe</h1>
-    <p class="tagline">Aspiring cybersecurity and GRC analyst with a BSc in Sociology with Criminology.</p>
-    <nav class="contact" aria-label="Contact links">
-      <a href="mailto:ezenekweugowork04@outlook.com">email</a>
-      <a href="https://github.com/ugartificalg8djpg" rel="noopener">github</a>
+<body class="bg-bg text-white font-sans antialiased overflow-x-clip">
+
+<!-- ============================================================ -->
+<!-- HEADER -->
+<!-- ============================================================ -->
+<header class="fixed inset-x-0 top-0 z-50 border-b border-line bg-bg/85 backdrop-blur-xl">
+  <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 md:px-8">
+    <a href="#top" class="flex items-baseline gap-3">
+      <span class="font-display text-base font-700 font-bold tracking-tight">Ugonna Ezenekwe<span class="text-accent">.</span></span>
+      <span class="hidden font-mono text-[10px] uppercase tracking-[0.18em] text-faint sm:inline">[GRC &amp; RISK ANALYST]</span>
+    </a>
+    <nav class="hidden items-center gap-7 md:flex" aria-label="Primary">
+      <a href="#audits" class="link-u text-sm text-body hover:text-white transition-colors">Audits</a>
+      <a href="#frameworks" class="link-u text-sm text-body hover:text-white transition-colors">Frameworks</a>
+      <a href="#background" class="link-u text-sm text-body hover:text-white transition-colors">Background</a>
+      <a href="Ugonna_Ezenekwe_CV.pdf" target="_blank" rel="noopener" class="link-u text-sm text-body hover:text-white transition-colors">CV (PDF)</a>
+      <a href="#contact" class="rounded-none border border-line px-4 py-1.5 text-sm text-white transition-colors hover:border-accent hover:text-accent">Contact</a>
+    </nav>
+    <!-- Mobile menu button -->
+    <button id="menuBtn" type="button" class="flex h-10 w-10 items-center justify-center md:hidden" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
+      <i data-lucide="menu" class="h-5 w-5"></i>
+    </button>
+  </div>
+  <!-- Mobile menu -->
+  <div id="mobileMenu" class="hidden border-t border-line bg-bg md:hidden">
+    <nav class="flex flex-col px-5 py-4" aria-label="Mobile">
+      <a href="#audits" class="border-b border-linesoft py-3 text-sm text-body">Audits</a>
+      <a href="#frameworks" class="border-b border-linesoft py-3 text-sm text-body">Frameworks</a>
+      <a href="#background" class="border-b border-linesoft py-3 text-sm text-body">Background</a>
+      <a href="Ugonna_Ezenekwe_CV.pdf" target="_blank" rel="noopener" class="border-b border-linesoft py-3 text-sm text-body">CV (PDF)</a>
+      <a href="#contact" class="py-3 text-sm text-white">Contact</a>
     </nav>
   </div>
 </header>
 
-<section aria-labelledby="about-h">
-  <div class="wrap">
-    <div class="sec-head"><h2 id="about-h">Summary</h2><span class="ref">REF 00</span></div>
-    <div class="summary">
-      <p>I've built a portfolio of hands-on projects mirroring real analyst work: internal security audits assessed against NIST CSF, PCI DSS and GDPR with risk registers and remediation roadmaps, incident investigations using tcpdump and Wireshark tracing attack chains across DNS and HTTP traffic, and a home lab running an Ubuntu virtual machine with SIEM tooling for log monitoring and alert triage.</p>
-      <p>My background adds strong communication, something many entry level candidates lack. Through my research internship at Reimagining Criminal Justice C.I.C. I drafted correspondence for senior stakeholders, and my criminology degree trained me to analyse risk and evidence, skills that matter in GRC, where translating findings for non technical audiences is half the job.</p>
-      <p>I'm seeking entry level roles in GRC, compliance analysis, security operations or internal audit. My inbox is open.</p>
+<main id="top">
+
+<!-- ============================================================ -->
+<!-- HERO -->
+<!-- ============================================================ -->
+<section class="relative flex min-h-[92svh] flex-col items-center justify-center overflow-hidden px-5 pt-24 pb-16 text-center">
+  <div class="grid-bg absolute inset-0" aria-hidden="true"></div>
+
+  <div class="relative z-10 mx-auto max-w-4xl">
+    <p class="font-mono text-[11px] uppercase tracking-[0.22em] text-accent md:text-xs">// Information Security, Governance &amp; Compliance</p>
+
+    <h1 class="mt-7 font-display font-black leading-[0.95] tracking-[-0.03em]" style="font-size: clamp(3rem, 10vw, 7.5rem);">
+      UGONNA<br><span class="text-body">EZENEKWE</span>
+    </h1>
+
+    <p class="mx-auto mt-8 max-w-2xl text-balance text-base leading-relaxed text-body md:text-lg">
+      Aspiring GRC Analyst building security controls audits, risk assessments and incident reports mapped to NIST CSF, PCI DSS, GDPR and SOC frameworks.
+    </p>
+
+    <p class="mt-6 font-mono text-[10px] uppercase tracking-[0.2em] text-faint md:text-[11px]">
+      [ OPEN TO WORK <span class="text-accent">/</span> LONDON, UK <span class="text-accent">/</span> REMOTE OR HYBRID ]
+    </p>
+
+    <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
+      <a href="Ugonna_Ezenekwe_CV.pdf" target="_blank" rel="noopener" class="inline-flex items-center gap-2 bg-white px-7 py-3.5 font-mono text-xs uppercase tracking-[0.14em] text-bg transition-colors hover:bg-accent">
+        <i data-lucide="download" class="h-4 w-4"></i> Download CV (PDF)
+      </a>
+      <a href="#audits" class="inline-flex items-center gap-2 border border-line px-7 py-3.5 font-mono text-xs uppercase tracking-[0.14em] text-white transition-colors hover:border-accent hover:text-accent">
+        View Audit Case Studies <i data-lucide="arrow-down" class="h-4 w-4"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- Audit-trail ticker line -->
+  <div class="absolute bottom-0 left-0 right-0 z-10 border-t border-line bg-bg/80">
+    <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-8 gap-y-1 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.16em] text-faint">
+      <span>NIST CSF</span><span class="text-line">·</span>
+      <span>PCI DSS</span><span class="text-line">·</span>
+      <span>GDPR / UK GDPR</span><span class="text-line">·</span>
+      <span>SOC 1 &amp; 2</span><span class="text-line">·</span>
+      <span>Risk Registers</span><span class="text-line">·</span>
+      <span>Gap Analysis</span><span class="text-line">·</span>
+      <span>Incident Reporting</span>
     </div>
   </div>
 </section>
 
-<section aria-labelledby="skills-h">
-  <div class="wrap">
-    <div class="sec-head"><h2 id="skills-h">Key Skills</h2><span class="ref">REF 01</span></div>
-    <dl>
-      <div class="skill-row"><dt>Cyber &amp; GRC</dt><dd>Gap analysis, governance documentation, control assessment, risk assessment, compliance frameworks (PCI DSS, GDPR, SOC, NIST), SIEM tools, event monitoring</dd></div>
-      <div class="skill-row"><dt>Software</dt><dd>Excel, SPSS, Microsoft Office</dd></div>
-      <div class="skill-row"><dt>Project support</dt><dd>Project secretariat, milestone tracking, coordinating inputs, progress reporting, action management</dd></div>
-      <div class="skill-row"><dt>Communication</dt><dd>Clear written and verbal communication with senior managers and external stakeholders, drafting correspondence and briefings, producing on brand professional documents</dd></div>
-    </dl>
+<!-- ============================================================ -->
+<!-- FRAMEWORKS & COMPLIANCE TOOLCHAIN -->
+<!-- ============================================================ -->
+<section id="frameworks" class="mx-auto max-w-6xl scroll-mt-24 px-5 py-20 md:px-8 md:py-28">
+  <div class="reveal">
+    <p class="font-mono text-[11px] uppercase tracking-[0.2em] text-accent">[ 01 / Toolchain ]</p>
+    <h2 class="mt-5 max-w-2xl font-display text-3xl font-bold leading-tight tracking-tight md:text-5xl">Frameworks, competencies and tooling.</h2>
+  </div>
+
+  <div class="reveal mt-12 grid grid-cols-1 border border-line md:grid-cols-3">
+    <!-- Frameworks -->
+    <div class="border-b border-line p-7 md:border-b-0 md:border-r">
+      <div class="flex items-center gap-2.5">
+        <i data-lucide="shield-check" class="h-4 w-4 text-accent"></i>
+        <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-white">Frameworks &amp; Standards</h3>
+      </div>
+      <div class="mt-6 flex flex-wrap gap-2">
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">NIST CSF</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">NIST Incident Response Lifecycle</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">PCI DSS</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">GDPR / UK GDPR</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">SOC 1 &amp; SOC 2</span>
+      </div>
+    </div>
+    <!-- Competencies -->
+    <div class="border-b border-line p-7 md:border-b-0 md:border-r">
+      <div class="flex items-center gap-2.5">
+        <i data-lucide="clipboard-check" class="h-4 w-4 text-accent"></i>
+        <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-white">Core Competencies</h3>
+      </div>
+      <div class="mt-6 flex flex-wrap gap-2">
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Security Controls Auditing</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Risk Assessment</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Gap Analysis</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Governance Documentation</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Compliance Checklists</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Incident Reporting</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Event Monitoring</span>
+      </div>
+    </div>
+    <!-- Tools -->
+    <div class="p-7">
+      <div class="flex items-center gap-2.5">
+        <i data-lucide="terminal" class="h-4 w-4 text-accent"></i>
+        <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-white">Tools &amp; Platforms</h3>
+      </div>
+      <div class="mt-6 flex flex-wrap gap-2">
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Wireshark</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">tcpdump</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Linux (Ubuntu)</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">SIEM Home Lab</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Excel</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">SPSS</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Microsoft Office</span>
+      </div>
+    </div>
   </div>
 </section>
 
-<section aria-labelledby="exp-h">
-  <div class="wrap">
-    <div class="sec-head"><h2 id="exp-h">Work Experience</h2><span class="ref">REF 02</span></div>
+<!-- ============================================================ -->
+<!-- AUDIT CASE STUDIES -->
+<!-- ============================================================ -->
+<section id="audits" class="mx-auto max-w-6xl scroll-mt-24 px-5 py-20 md:px-8 md:py-28">
+  <div class="reveal flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+    <div>
+      <p class="font-mono text-[11px] uppercase tracking-[0.2em] text-accent">[ 02 / Audit Case Studies ]</p>
+      <h2 class="mt-5 max-w-3xl font-display text-3xl font-bold leading-tight tracking-tight md:text-5xl">Controls audits, risk registers and incident reports.</h2>
+    </div>
+    <a href="https://github.com/ugartificalg8djpg" target="_blank" rel="noopener" class="link-u w-fit text-sm text-body hover:text-white">All projects on GitHub →</a>
+  </div>
 
-    <article class="entry">
-      <div class="entry-top">
-        <span class="entry-id">ENTRY 001</span>
-        <h3>Cybersecurity Home Lab</h3>
-        <span class="meta">Self employed · ongoing</span>
+  <!-- Case study 01: Botium Toys -->
+  <article class="card reveal mt-12 border border-line bg-elev p-7 md:p-10">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <span class="font-mono text-[11px] uppercase tracking-[0.18em] text-accent">Controls &amp; Compliance Audit</span>
+      <span class="border border-accent/40 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">[ Risk: High Gaps Identified ]</span>
+    </div>
+    <h3 class="mt-4 font-display text-2xl font-bold tracking-tight md:text-4xl">Botium Toys Security Audit</h3>
+    <p class="mt-2 font-mono text-xs text-faint">Independent portfolio project · Google Cybersecurity Certificate scenario · May 2026</p>
+
+    <div class="mt-8 grid gap-px border border-linesoft bg-linesoft sm:grid-cols-2 lg:grid-cols-4">
+      <div class="bg-elev p-5">
+        <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-faint">Objective</p>
+        <p class="mt-3 text-sm leading-relaxed text-body">Assess the full security programme of a growing e-commerce toy retailer against PCI DSS, GDPR and SOC expectations, covering assets, controls and compliance posture.</p>
       </div>
-      <div class="tags"><span class="tag">Ubuntu</span><span class="tag">SIEM</span><span class="tag">SOC processes</span></div>
-      <ul>
-        <li>Deployed and configured an Ubuntu based virtual machine to simulate an enterprise network environment, establishing a controlled sandbox for hands-on security testing and analysis</li>
-        <li>Conducted simulated security monitoring exercises within the lab, developing practical exposure to incident identification, event correlation and security operations centre (SOC) processes</li>
-      </ul>
+      <div class="bg-elev p-5">
+        <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-faint">Gaps Identified</p>
+        <p class="mt-3 text-sm leading-relaxed text-body">No least privilege or separation of duties, all staff could access cardholder data and PII. No encryption of customer credit card data. No formal disaster recovery plan or password management system.</p>
+      </div>
+      <div class="bg-elev p-5">
+        <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-faint">Actions Taken</p>
+        <p class="mt-3 text-sm leading-relaxed text-body">Completed a controls and compliance checklist across administrative, technical and physical categories, and built a risk register with asset inventory, threat likelihood and impact ratings.</p>
+      </div>
+      <div class="bg-elev p-5">
+        <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-faint">Outcome</p>
+        <p class="mt-3 text-sm leading-relaxed text-body">Delivered a prioritised remediation plan: encryption and IDS deployment, least privilege and password policy as high priority, incident response planning as medium priority.</p>
+      </div>
+    </div>
+
+    <div class="mt-6 flex flex-wrap gap-4">
+      <a href="https://github.com/ugartificalg8djpg" target="_blank" rel="noopener" class="inline-flex items-center gap-2 border border-line px-4 py-2 font-mono text-[11px] uppercase tracking-[0.14em] text-body transition-colors hover:border-accent hover:text-accent">
+        <i data-lucide="file-text" class="h-3.5 w-3.5"></i> [ Audit Report ]
+      </a>
+      <a href="https://github.com/ugartificalg8djpg" target="_blank" rel="noopener" class="inline-flex items-center gap-2 border border-line px-4 py-2 font-mono text-[11px] uppercase tracking-[0.14em] text-body transition-colors hover:border-accent hover:text-accent">
+        <i data-lucide="table" class="h-3.5 w-3.5"></i> [ Risk Register ]
+      </a>
+    </div>
+  </article>
+
+  <div class="mt-6 grid gap-6 lg:grid-cols-2">
+
+    <!-- Case study 02: NIST CSF DoS incident -->
+    <article class="card reveal flex flex-col border border-line bg-elev p-7">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <span class="font-mono text-[11px] uppercase tracking-[0.18em] text-accent">Incident Report · NIST CSF</span>
+        <span class="border border-line px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-faint">[ Availability ]</span>
+      </div>
+      <h3 class="mt-4 font-display text-xl font-bold tracking-tight md:text-2xl">DoS Incident Analysis: ICMP Flood</h3>
+      <p class="mt-2 font-mono text-xs text-faint">Independent · July 2026</p>
+      <div class="mt-5 space-y-3 text-sm leading-relaxed text-body">
+        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Objective — </span>Analyse a two hour internal network outage caused by a sustained ICMP flood and structure the full response using the five NIST CSF functions.</p>
+        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Root cause — </span>An unconfigured perimeter firewall with no rate limiting or filtering allowed the flood straight into the internal network.</p>
+        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Outcome — </span>Recommended and documented ICMP rate limiting, source IP verification, network monitoring and IDS/IPS controls, with a staged recovery playbook restoring critical services first.</p>
+      </div>
+      <a href="https://github.com/ugartificalg8djpg/Google-Cybersecurity-lab-Applying-the-NIST-CSF-to-a-security-incident" target="_blank" rel="noopener" class="mt-auto inline-flex w-fit items-center gap-2 pt-6 font-mono text-[11px] uppercase tracking-[0.14em] text-body transition-colors hover:text-accent">
+        <i data-lucide="github" class="h-3.5 w-3.5"></i> [ View Repository ] <span aria-hidden="true">↗</span>
+      </a>
     </article>
 
-    <article class="entry">
-      <div class="entry-top">
-        <span class="entry-id">ENTRY 002</span>
-        <h3>Justice Research and Communications Intern</h3>
-        <span class="meta">Reimagining Criminal Justice C.I.C. · Jan 2025 – Apr 2025</span>
+    <!-- Case study 03: Brute force / OS hardening -->
+    <article class="card reveal flex flex-col border border-line bg-elev p-7">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <span class="font-mono text-[11px] uppercase tracking-[0.18em] text-accent">Incident Report · OS Hardening</span>
+        <span class="border border-line px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-faint">[ Access Control ]</span>
       </div>
-      <div class="tags"><span class="tag warm">Stakeholder management</span><span class="tag warm">Research</span></div>
-      <ul>
-        <li>Managed and maintained a structured stakeholder database of over 50 national and international organisations, keeping contact records accurate and accessible so senior staff could retrieve up-to-date information quickly</li>
-        <li>Drafted professional outreach correspondence to external partner organisations on behalf of senior staff, communicating clearly for a range of audiences</li>
-        <li>Produced concise written summaries of complex documents for senior decision makers, distilling dense material into clear, actionable outputs</li>
-        <li>Coordinated research inputs across multiple workstreams simultaneously, prioritising effectively in a small, fast moving team</li>
-      </ul>
+      <h3 class="mt-4 font-display text-xl font-bold tracking-tight md:text-2xl">Brute Force Attack &amp; Malicious Redirect</h3>
+      <p class="mt-2 font-mono text-xs text-faint">Independent · July 2026</p>
+      <div class="mt-5 space-y-3 text-sm leading-relaxed text-body">
+        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Objective — </span>Investigate a compromised recipe website luring visitors into downloading malware that redirected them to a spoofed domain.</p>
+        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Method — </span>Replicated the attack in a sandboxed VM and traced the full chain across DNS and HTTP tcpdump logs, confirming a brute force takeover of a default admin password.</p>
+        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Outcome — </span>Formal incident report recommending a strong password policy, multi factor authentication and login attempt limits.</p>
+      </div>
+      <a href="https://github.com/ugartificalg8djpg" target="_blank" rel="noopener" class="mt-auto inline-flex w-fit items-center gap-2 pt-6 font-mono text-[11px] uppercase tracking-[0.14em] text-body transition-colors hover:text-accent">
+        <i data-lucide="github" class="h-3.5 w-3.5"></i> [ View on GitHub ] <span aria-hidden="true">↗</span>
+      </a>
     </article>
+
+    <!-- Case study 04: Wireshark -->
+    <article class="card reveal flex flex-col border border-line bg-elev p-7">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <span class="font-mono text-[11px] uppercase tracking-[0.18em] text-accent">Network Traffic Analysis</span>
+        <span class="border border-line px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-faint">[ DNS ]</span>
+      </div>
+      <h3 class="mt-4 font-display text-xl font-bold tracking-tight md:text-2xl">Wireshark DNS Outage Investigation</h3>
+      <p class="mt-2 font-mono text-xs text-faint">Independent · July 2026</p>
+      <div class="mt-5 space-y-3 text-sm leading-relaxed text-body">
+        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Objective — </span>Diagnose why customers could not reach a website, working from packet captures rather than assumptions.</p>
+        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Findings — </span>Repeated UDP requests to port 53 returned ICMP "port unreachable" errors, isolating the fault to a DNS server that was down or blocked, with a possible denial of service or misconfiguration as the cause.</p>
+        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Outcome — </span>Structured incident report separating evidence from interpretation and setting out the next investigative steps.</p>
+      </div>
+      <a href="https://github.com/ugartificalg8djpg" target="_blank" rel="noopener" class="mt-auto inline-flex w-fit items-center gap-2 pt-6 font-mono text-[11px] uppercase tracking-[0.14em] text-body transition-colors hover:text-accent">
+        <i data-lucide="github" class="h-3.5 w-3.5"></i> [ View on GitHub ] <span aria-hidden="true">↗</span>
+      </a>
+    </article>
+
+    <!-- Case study 05: Meridian -->
+    <article class="card reveal flex flex-col border border-line bg-elev p-7">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <span class="font-mono text-[11px] uppercase tracking-[0.18em] text-accent">End-to-End Internal Audit</span>
+        <span class="border border-line px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-faint">[ Healthcare Scenario ]</span>
+      </div>
+      <h3 class="mt-4 font-display text-xl font-bold tracking-tight md:text-2xl">Meridian Health Partners Controls Audit</h3>
+      <p class="mt-2 font-mono text-xs text-faint">Independent practice project · May to June 2026</p>
+      <div class="mt-5 space-y-3 text-sm leading-relaxed text-body">
+        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Objective — </span>Run a full internal audit for a fictional mid-size healthcare company, from asset inventory through to remediation roadmap.</p>
+        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Scope — </span>Threat likelihood, control gap identification and risk register development across administrative, technical and physical control categories.</p>
+        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Outcome — </span>Written audit report presenting prioritised findings to technical and non-technical audiences, aligned to NIST CSF.</p>
+      </div>
+      <a href="https://github.com/ugartificalg8djpg" target="_blank" rel="noopener" class="mt-auto inline-flex w-fit items-center gap-2 pt-6 font-mono text-[11px] uppercase tracking-[0.14em] text-body transition-colors hover:text-accent">
+        <i data-lucide="github" class="h-3.5 w-3.5"></i> [ View on GitHub ] <span aria-hidden="true">↗</span>
+      </a>
+    </article>
+  </div>
+
+  <!-- Supporting practice -->
+  <div class="reveal mt-6 grid gap-px border border-line bg-line md:grid-cols-2">
+    <div class="bg-bg p-6">
+      <div class="flex items-center gap-2.5">
+        <i data-lucide="book-open" class="h-4 w-4 text-accent"></i>
+        <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-white">Incident Handler's Journal</h3>
+      </div>
+      <p class="mt-3 text-sm leading-relaxed text-body">Ongoing journal applying the NIST incident response lifecycle to ransomware, phishing and data breach scenarios, recording the who, what, when, where and why of each event alongside tools used and lessons learned.</p>
+    </div>
+    <div class="bg-bg p-6">
+      <div class="flex items-center gap-2.5">
+        <i data-lucide="server" class="h-4 w-4 text-accent"></i>
+        <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-white">Cybersecurity Home Lab</h3>
+      </div>
+      <p class="mt-3 text-sm leading-relaxed text-body">Ubuntu virtual machine simulating an enterprise network as a controlled sandbox, used for security monitoring exercises, incident identification, event correlation and hands-on exposure to SOC processes.</p>
+    </div>
   </div>
 </section>
 
-<section aria-labelledby="proj-h">
-  <div class="wrap">
-    <div class="sec-head"><h2 id="proj-h">Projects</h2><span class="ref">REF 03</span></div>
+<!-- ============================================================ -->
+<!-- BACKGROUND & EDUCATION -->
+<!-- ============================================================ -->
+<section id="background" class="mx-auto max-w-6xl scroll-mt-24 px-5 py-20 md:px-8 md:py-28">
+  <div class="reveal">
+    <p class="font-mono text-[11px] uppercase tracking-[0.2em] text-accent">[ 03 / Background ]</p>
+    <h2 class="mt-5 max-w-2xl font-display text-3xl font-bold leading-tight tracking-tight md:text-5xl">Experience, education and certification.</h2>
+  </div>
 
-    <article class="entry">
-      <div class="entry-top">
-        <span class="entry-id">ENTRY 003</span>
-        <h3>NIST CSF Incident Report Analysis</h3>
-        <span class="meta">Independent · Jul 2026</span>
-      </div>
-      <div class="tags"><span class="tag">NIST CSF</span><span class="tag">DoS / ICMP flood</span><span class="tag">IDS/IPS</span></div>
-      <ul>
-        <li>Applied the five NIST Cybersecurity Framework functions to analyse a denial of service incident, identifying an ICMP flood attack that exploited an unconfigured firewall and mapping the root cause, affected systems and business impact</li>
-        <li>Produced a structured incident report covering protection, detection, response and recovery, recommending controls including firewall rate limiting, source IP verification, network monitoring and an IDS/IPS system</li>
-      </ul>
-    </article>
+  <div class="reveal mt-12 border border-line">
 
-    <article class="entry">
-      <div class="entry-top">
-        <span class="entry-id">ENTRY 004</span>
-        <h3>OS Hardening Report</h3>
-        <span class="meta">Independent · Jul 2026</span>
+    <!-- Timeline row -->
+    <div class="grid grid-cols-1 gap-4 border-b border-line p-7 md:grid-cols-[220px_1fr] md:gap-10">
+      <p class="font-mono text-xs uppercase tracking-[0.16em] text-faint">2026 — Present</p>
+      <div>
+        <h3 class="font-display text-lg font-bold tracking-tight">Security Analyst (Independent Projects) · Self-employed</h3>
+        <p class="mt-2 max-w-3xl text-sm leading-relaxed text-body">Audited two fictional organisations against PCI DSS, GDPR, SOC and NIST CSF expectations, documented four structured incident reports, and evaluated network evidence with Wireshark and tcpdump. Deployed and configured an Ubuntu home lab to simulate an enterprise environment for monitoring and SOC-style exercises.</p>
       </div>
-      <div class="tags"><span class="tag">tcpdump</span><span class="tag">DNS / HTTP</span><span class="tag">Brute force</span></div>
-      <ul>
-        <li>Investigated a simulated website compromise by capturing and analysing network traffic with tcpdump in a sandboxed virtual machine, tracing the full attack chain across DNS and HTTP logs to identify a malicious redirect to a spoofed domain</li>
-        <li>Produced a formal security incident report documenting a brute force attack against an administrative account, recommending remediation controls including a strong password policy, multi factor authentication and login attempt limits</li>
-      </ul>
-    </article>
+    </div>
 
-    <article class="entry">
-      <div class="entry-top">
-        <span class="entry-id">ENTRY 005</span>
-        <h3>Incident Handler's Journal</h3>
-        <span class="meta">Independent · Jul 2026</span>
+    <div class="grid grid-cols-1 gap-4 border-b border-line p-7 md:grid-cols-[220px_1fr] md:gap-10">
+      <p class="font-mono text-xs uppercase tracking-[0.16em] text-faint">Dec 2025 — Present</p>
+      <div>
+        <h3 class="font-display text-lg font-bold tracking-tight">Customer Team Member · Co-op</h3>
+        <p class="mt-2 max-w-3xl text-sm leading-relaxed text-body">Processed several thousand pounds in daily transactions accurately under sustained pressure, and redesigned the fresh food stock rotation system with a date-priority process that reduced waste and avoidable losses.</p>
       </div>
-      <div class="tags"><span class="tag">NIST IR lifecycle</span><span class="tag">Documentation</span></div>
-      <ul>
-        <li>Maintained an incident handler's journal documenting security incidents across multiple scenarios, applying the NIST incident response lifecycle and structured analysis of the who, what, when, where and why of each event</li>
-        <li>Recorded investigation notes on real world style incidents including ransomware, phishing and data breaches, capturing tools used, actions taken and lessons learned to support post incident review</li>
-      </ul>
-    </article>
+    </div>
 
-    <article class="entry">
-      <div class="entry-top">
-        <span class="entry-id">ENTRY 006</span>
-        <h3>Wireshark Network Traffic Analysis</h3>
-        <span class="meta">Independent · Jul 2026</span>
+    <div class="grid grid-cols-1 gap-4 border-b border-line p-7 md:grid-cols-[220px_1fr] md:gap-10">
+      <p class="font-mono text-xs uppercase tracking-[0.16em] text-faint">Jan 2025 — Apr 2025</p>
+      <div>
+        <h3 class="font-display text-lg font-bold tracking-tight">Justice Research and Communications Intern · Reimagining Criminal Justice C.I.C.</h3>
+        <p class="mt-2 max-w-3xl text-sm leading-relaxed text-body">Maintained a structured stakeholder database of over 50 national and international organisations, drafted professional outreach correspondence on behalf of senior staff, and distilled complex documents into concise summaries for senior decision-makers.</p>
       </div>
-      <div class="tags"><span class="tag">Wireshark</span><span class="tag">SYN flood</span><span class="tag">TCP</span></div>
-      <ul>
-        <li>Analysed captured network traffic in Wireshark to investigate a website outage, identifying a SYN flood denial of service attack by tracing a high volume of half open TCP connections from a single source IP</li>
-        <li>Documented the incident in a structured report explaining the abuse of the TCP three way handshake, its business impact, and prevention measures including SYN cookies, rate limiting and firewall rules</li>
-      </ul>
-    </article>
+    </div>
 
-    <article class="entry">
-      <div class="entry-top">
-        <span class="entry-id">ENTRY 007</span>
-        <h3>Security Audit Project — Botium Toys</h3>
-        <span class="meta">Independent · May 2026</span>
+    <div class="grid grid-cols-1 gap-4 border-b border-line p-7 md:grid-cols-[220px_1fr] md:gap-10">
+      <p class="font-mono text-xs uppercase tracking-[0.16em] text-faint">Certification</p>
+      <div>
+        <h3 class="font-display text-lg font-bold tracking-tight">Google Cybersecurity Professional Certificate · Coursera</h3>
+        <p class="mt-2 max-w-3xl text-sm leading-relaxed text-body">In progress, expected 2026. Completed: Foundations of Cybersecurity, Play It Safe: Managing Security Risk, and Connect and Protect: Networks and Network Security.</p>
       </div>
-      <div class="tags"><span class="tag">PCI DSS</span><span class="tag">GDPR</span><span class="tag">SOC</span><span class="tag">Risk register</span></div>
-      <ul>
-        <li>Conducted a controls and compliance gap assessment, evaluating existing security controls against PCI DSS, GDPR and SOC requirements and identifying critical gaps including absent least privilege access, unencrypted customer data and no formal disaster recovery plan</li>
-        <li>Produced a risk register and governance documentation capturing asset inventory, threat likelihood and impact ratings across administrative, technical and physical control categories</li>
-      </ul>
-    </article>
+    </div>
 
-    <article class="entry">
-      <div class="entry-top">
-        <span class="entry-id">ENTRY 008</span>
-        <h3>Meridian Health Partners Security Audit</h3>
-        <span class="meta">Independent · May – Jun 2026</span>
+    <div class="grid grid-cols-1 gap-4 p-7 md:grid-cols-[220px_1fr] md:gap-10">
+      <p class="font-mono text-xs uppercase tracking-[0.16em] text-faint">Education</p>
+      <div>
+        <h3 class="font-display text-lg font-bold tracking-tight">BSc Sociology with Criminology · Middlesex University</h3>
+        <p class="mt-2 max-w-3xl text-sm leading-relaxed text-body">Grounding in structured analysis, research methods and clear written communication, applied directly to risk assessment and governance documentation.</p>
       </div>
-      <div class="tags"><span class="tag">NIST CSF</span><span class="tag">Internal audit</span></div>
-      <ul>
-        <li>Performed an end to end internal audit for a fictional mid size company (practice project, AI assisted) covering asset inventory, threat likelihood, control gap identification and risk register development</li>
-        <li>Produced a written audit report and remediation roadmap presenting prioritised findings to technical and non technical audiences, aligned to recognised compliance frameworks including NIST CSF</li>
-      </ul>
-    </article>
+    </div>
+
   </div>
 </section>
 
-<section aria-labelledby="cert-h">
-  <div class="wrap">
-    <div class="sec-head"><h2 id="cert-h">Certifications &amp; Professional Development</h2><span class="ref">REF 04</span></div>
-    <div class="cert"><span class="name">Google Cybersecurity Professional Certificate · Coursera</span><span class="status progress">IN PROGRESS · 2026</span></div>
-    <div class="cert"><span class="name">Foundations of Cybersecurity · Coursera</span><span class="status done">COMPLETED · MAY 2026</span></div>
-    <div class="cert"><span class="name">Play it Safe: Managing Security Risk · Coursera</span><span class="status done">COMPLETED · JUN 2026</span></div>
-    <div class="cert"><span class="name">Connect and Protect: Networks and Network Security · Coursera</span><span class="status done">COMPLETED · JUL 2026</span></div>
+<!-- ============================================================ -->
+<!-- CONTACT -->
+<!-- ============================================================ -->
+<section id="contact" class="mx-auto max-w-6xl scroll-mt-24 px-5 py-20 md:px-8 md:py-28">
+  <div class="reveal">
+    <p class="font-mono text-[11px] uppercase tracking-[0.2em] text-accent">[ 04 / Contact ]</p>
+    <h2 class="mt-5 max-w-3xl font-display text-3xl font-bold leading-tight tracking-tight md:text-5xl">Hiring for a junior GRC, compliance or audit role? Let's talk.</h2>
+  </div>
+
+  <div class="reveal mt-12 grid gap-px border border-line bg-line lg:grid-cols-2">
+    <!-- Form -->
+    <div class="bg-bg p-7 md:p-10">
+      <form id="contactForm" class="space-y-5">
+        <div>
+          <label for="cName" class="font-mono text-[10px] uppercase tracking-[0.16em] text-faint">Name</label>
+          <input id="cName" name="name" type="text" required class="mt-2 w-full border border-line bg-transparent px-4 py-3 text-sm text-white placeholder-faint transition-colors" placeholder="Your name">
+        </div>
+        <div>
+          <label for="cEmail" class="font-mono text-[10px] uppercase tracking-[0.16em] text-faint">Email</label>
+          <input id="cEmail" name="email" type="email" required class="mt-2 w-full border border-line bg-transparent px-4 py-3 text-sm text-white placeholder-faint transition-colors" placeholder="you@company.com">
+        </div>
+        <div>
+          <label for="cMsg" class="font-mono text-[10px] uppercase tracking-[0.16em] text-faint">Message</label>
+          <textarea id="cMsg" name="message" rows="5" required class="mt-2 w-full resize-none border border-line bg-transparent px-4 py-3 text-sm text-white placeholder-faint transition-colors" placeholder="Role, company and how I can help"></textarea>
+        </div>
+        <button type="submit" class="inline-flex items-center gap-2 bg-white px-7 py-3.5 font-mono text-xs uppercase tracking-[0.14em] text-bg transition-colors hover:bg-accent">
+          Send message <i data-lucide="arrow-right" class="h-4 w-4"></i>
+        </button>
+        <p class="font-mono text-[10px] text-faint">Opens your email client with the message pre-filled.</p>
+      </form>
+    </div>
+
+    <!-- Direct badges -->
+    <div class="flex flex-col justify-center gap-4 bg-bg p-7 md:p-10">
+      <a href="mailto:ezenekweugowork04@outlook.com" class="group flex items-center justify-between border border-line px-5 py-4 transition-colors hover:border-accent">
+        <span class="flex items-center gap-3">
+          <i data-lucide="mail" class="h-4 w-4 text-accent"></i>
+          <span class="text-sm text-body group-hover:text-white">ezenekweugowork04@outlook.com</span>
+        </span>
+        <span class="font-mono text-xs text-faint" aria-hidden="true">↗</span>
+      </a>
+      <a href="https://www.linkedin.com/in/ugonna-ezenekwe-53617929b/" target="_blank" rel="noopener" class="group flex items-center justify-between border border-line px-5 py-4 transition-colors hover:border-accent">
+        <span class="flex items-center gap-3">
+          <i data-lucide="linkedin" class="h-4 w-4 text-accent"></i>
+          <span class="text-sm text-body group-hover:text-white">LinkedIn / ugonna-ezenekwe</span>
+        </span>
+        <span class="font-mono text-xs text-faint" aria-hidden="true">↗</span>
+      </a>
+      <a href="https://github.com/ugartificalg8djpg" target="_blank" rel="noopener" class="group flex items-center justify-between border border-line px-5 py-4 transition-colors hover:border-accent">
+        <span class="flex items-center gap-3">
+          <i data-lucide="github" class="h-4 w-4 text-accent"></i>
+          <span class="text-sm text-body group-hover:text-white">GitHub / ugartificalg8djpg</span>
+        </span>
+        <span class="font-mono text-xs text-faint" aria-hidden="true">↗</span>
+      </a>
+      <p class="mt-2 font-mono text-[10px] uppercase tracking-[0.16em] text-faint">[ Responses typically within 24 hours ]</p>
+    </div>
   </div>
 </section>
 
-<section aria-labelledby="edu-h">
-  <div class="wrap">
-    <div class="sec-head"><h2 id="edu-h">Education</h2><span class="ref">REF 05</span></div>
-    <div class="cert"><span class="name">BSc Sociology with Criminology · Middlesex University</span><span class="status done">COMPLETED</span></div>
-  </div>
-</section>
+</main>
 
-<footer>
-  <div class="wrap">
-    <p class="stamp">REGISTER MAINTAINED BY UGONNA EZENEKWE · LONDON</p>
-    <p>Open to entry level roles in GRC, compliance analysis, security operations and internal audit.</p>
+<!-- ============================================================ -->
+<!-- FOOTER -->
+<!-- ============================================================ -->
+<footer class="border-t border-line">
+  <div class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-5 py-8 md:flex-row md:px-8">
+    <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-faint">© 2026 Ugonna Ezenekwe · London, UK</p>
+    <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-faint">[ GRC · Risk · Compliance · Audit ]</p>
   </div>
 </footer>
+
+<script>
+  // Icons
+  lucide.createIcons();
+
+  // Mobile menu
+  const menuBtn = document.getElementById('menuBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  menuBtn.addEventListener('click', () => {
+    const open = mobileMenu.classList.toggle('hidden') === false;
+    menuBtn.setAttribute('aria-expanded', String(open));
+  });
+  mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    mobileMenu.classList.add('hidden');
+    menuBtn.setAttribute('aria-expanded', 'false');
+  }));
+
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); observer.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Contact form: build a mailto so the static page needs no backend
+  document.getElementById('contactForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = document.getElementById('cName').value.trim();
+    const email = document.getElementById('cEmail').value.trim();
+    const msg = document.getElementById('cMsg').value.trim();
+    const subject = encodeURIComponent('Portfolio enquiry from ' + name);
+    const body = encodeURIComponent(msg + '\n\nFrom: ' + name + ' (' + email + ')');
+    window.location.href = 'mailto:ezenekweugowork04@outlook.com?subject=' + subject + '&body=' + body;
+  });
+</script>
 
 </body>
 </html>
