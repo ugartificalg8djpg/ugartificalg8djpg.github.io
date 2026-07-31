@@ -57,11 +57,42 @@ tailwind.config = {
     -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black 30%, transparent 75%);
   }
 
+  /* ---------- Puzzle motif ---------- */
+  @keyframes drift {
+    0%   { transform: translate(0, 0) rotate(var(--r0, 0deg)); }
+    50%  { transform: translate(var(--dx, 10px), var(--dy, -16px)) rotate(var(--r1, 8deg)); }
+    100% { transform: translate(0, 0) rotate(var(--r0, 0deg)); }
+  }
+  .pz {
+    position: absolute;
+    animation: drift var(--dur, 9s) ease-in-out infinite;
+    will-change: transform;
+    pointer-events: none;
+  }
+  @keyframes lockIn {
+    0%   { opacity: 0; transform: translate(var(--fx, -40px), var(--fy, -30px)) rotate(-25deg) scale(.6); }
+    70%  { opacity: 1; transform: translate(4px, 3px) rotate(4deg) scale(1.04); }
+    100% { opacity: 1; transform: translate(0,0) rotate(0deg) scale(1); }
+  }
+  .lock-in.in { animation: lockIn .8s cubic-bezier(.2,.8,.3,1.1) forwards; }
+  .lock-in { opacity: 0; }
+
+  /* Puzzle burst on the hero name hover */
+  @keyframes burst {
+    0%   { opacity: 0; transform: translate(0,0) rotate(0) scale(.4); }
+    20%  { opacity: 1; }
+    100% { opacity: 0; transform: translate(var(--bx, 60px), var(--by, -80px)) rotate(var(--br, 90deg)) scale(1); }
+  }
+  .burst-piece { position: absolute; pointer-events: none; opacity: 0; }
+  .bursting .burst-piece { animation: burst 1.1s ease-out forwards; }
+
   /* Scroll reveal */
   .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
   .reveal.in { opacity: 1; transform: none; }
+
   @media (prefers-reduced-motion: reduce) {
-    .reveal { opacity: 1; transform: none; transition: none; }
+    .reveal, .lock-in { opacity: 1 !important; transform: none !important; transition: none !important; animation: none !important; }
+    .pz, .burst-piece { animation: none !important; }
     html { scroll-behavior: auto; }
   }
 
@@ -74,16 +105,34 @@ tailwind.config = {
   .link-u:hover::after { width: 100%; }
 
   /* Case study card hover */
-  .card { transition: border-color .3s ease, background-color .3s ease; }
+  .card { transition: border-color .3s ease, background-color .3s ease, transform .3s ease; }
   .card:hover { border-color: #3f3f3f; background-color: #0C0C0F; }
 
+  /* Report viewer (modal) */
+  .modal { display: none; }
+  .modal.open { display: flex; }
+  .modal-panel { animation: modalUp .35s cubic-bezier(.2,.8,.3,1) both; }
+  @keyframes modalUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+  body.modal-locked { overflow: hidden; }
+
+  /* Journal tabs */
+  .jtab[aria-selected="true"] { border-color: #E2A63D; color: #fff; background: #0C0C0F; }
+  .jpanel { display: none; }
+  .jpanel.active { display: block; animation: modalUp .3s ease both; }
+
   input, textarea { outline: none; }
-  input:focus, textarea:focus { border-color: #E2A63D !important; }
   a:focus-visible, button:focus-visible { outline: 1px solid #E2A63D; outline-offset: 3px; }
 </style>
 </head>
 
 <body class="bg-bg text-white font-sans antialiased overflow-x-clip">
+
+<!-- Reusable puzzle path (Lucide 'puzzle') -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <path id="pzPath" d="M19.439 7.85c-.049.322.059.648.289.878l1.568 1.568c.47.47.706 1.087.706 1.704s-.235 1.233-.706 1.704l-1.611 1.611a.98.98 0 0 1-.837.276c-.47-.07-.802-.48-.968-.925a2.501 2.501 0 1 0-3.214 3.214c.446.166.855.497.925.968a.979.979 0 0 1-.276.837l-1.61 1.61a2.404 2.404 0 0 1-1.705.707 2.402 2.402 0 0 1-1.704-.706l-1.568-1.568a1.026 1.026 0 0 0-.877-.29c-.493.074-.84.504-1.02.968a2.5 2.5 0 1 1-3.237-3.237c.464-.18.894-.527.967-1.02a1.026 1.026 0 0 0-.289-.877l-1.568-1.568A2.402 2.402 0 0 1 1.998 12c0-.617.236-1.234.706-1.704L4.23 8.77c.24-.24.581-.353.917-.303.515.077.877.528 1.073 1.01a2.5 2.5 0 1 0 3.259-3.259c-.482-.196-.933-.558-1.01-1.073-.05-.336.062-.676.303-.917l1.525-1.525A2.402 2.402 0 0 1 12 1.998c.617 0 1.234.236 1.704.706l1.568 1.568c.23.23.556.338.877.29.493-.074.84-.504 1.02-.968a2.5 2.5 0 1 1 3.237 3.237c-.464.18-.894.527-.967 1.02Z"/>
+  </defs>
+</svg>
 
 <!-- ============================================================ -->
 <!-- HEADER -->
@@ -91,50 +140,75 @@ tailwind.config = {
 <header class="fixed inset-x-0 top-0 z-50 border-b border-line bg-bg/85 backdrop-blur-xl">
   <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 md:px-8">
     <a href="#top" class="flex items-baseline gap-3">
-      <span class="font-display text-base font-700 font-bold tracking-tight">Ugonna Ezenekwe<span class="text-accent">.</span></span>
+      <span class="font-display text-base font-bold tracking-tight">Ugonna Ezenekwe<span class="text-accent">.</span></span>
       <span class="hidden font-mono text-[10px] uppercase tracking-[0.18em] text-faint sm:inline">[GRC &amp; RISK ANALYST]</span>
     </a>
     <nav class="hidden items-center gap-7 md:flex" aria-label="Primary">
       <a href="#audits" class="link-u text-sm text-body hover:text-white transition-colors">Audits</a>
+      <a href="#journal" class="link-u text-sm text-body hover:text-white transition-colors">Journal</a>
       <a href="#frameworks" class="link-u text-sm text-body hover:text-white transition-colors">Frameworks</a>
       <a href="#background" class="link-u text-sm text-body hover:text-white transition-colors">Background</a>
-      <a href="Ugonna_Ezenekwe_CV.pdf" target="_blank" rel="noopener" class="link-u text-sm text-body hover:text-white transition-colors">CV (PDF)</a>
-      <a href="#contact" class="rounded-none border border-line px-4 py-1.5 text-sm text-white transition-colors hover:border-accent hover:text-accent">Contact</a>
+      <a href="Ugonna_Ezenekwe_CV.pdf" target="_blank" rel="noopener" class="rounded-none border border-line px-4 py-1.5 text-sm text-white transition-colors hover:border-accent hover:text-accent">CV (PDF)</a>
     </nav>
-    <!-- Mobile menu button -->
     <button id="menuBtn" type="button" class="flex h-10 w-10 items-center justify-center md:hidden" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
       <i data-lucide="menu" class="h-5 w-5"></i>
     </button>
   </div>
-  <!-- Mobile menu -->
   <div id="mobileMenu" class="hidden border-t border-line bg-bg md:hidden">
     <nav class="flex flex-col px-5 py-4" aria-label="Mobile">
       <a href="#audits" class="border-b border-linesoft py-3 text-sm text-body">Audits</a>
+      <a href="#journal" class="border-b border-linesoft py-3 text-sm text-body">Journal</a>
       <a href="#frameworks" class="border-b border-linesoft py-3 text-sm text-body">Frameworks</a>
       <a href="#background" class="border-b border-linesoft py-3 text-sm text-body">Background</a>
-      <a href="Ugonna_Ezenekwe_CV.pdf" target="_blank" rel="noopener" class="border-b border-linesoft py-3 text-sm text-body">CV (PDF)</a>
-      <a href="#contact" class="py-3 text-sm text-white">Contact</a>
+      <a href="Ugonna_Ezenekwe_CV.pdf" target="_blank" rel="noopener" class="py-3 text-sm text-white">CV (PDF)</a>
     </nav>
   </div>
 </header>
+
+<!-- Fixed scroll progress: pieces lock in as sections are completed -->
+<div id="pzProgress" class="fixed bottom-5 left-5 z-40 hidden flex-col items-center gap-2 md:flex" aria-hidden="true">
+  <svg class="h-5 w-5 pp" data-sec="audits" viewBox="0 0 24 24" fill="none" stroke="#3a3a3a" stroke-width="1.5"><use href="#pzPath"/></svg>
+  <svg class="h-5 w-5 pp" data-sec="journal" viewBox="0 0 24 24" fill="none" stroke="#3a3a3a" stroke-width="1.5"><use href="#pzPath"/></svg>
+  <svg class="h-5 w-5 pp" data-sec="frameworks" viewBox="0 0 24 24" fill="none" stroke="#3a3a3a" stroke-width="1.5"><use href="#pzPath"/></svg>
+  <svg class="h-5 w-5 pp" data-sec="background" viewBox="0 0 24 24" fill="none" stroke="#3a3a3a" stroke-width="1.5"><use href="#pzPath"/></svg>
+  <span class="mt-1 font-mono text-[9px] uppercase tracking-[0.14em] text-faint" style="writing-mode:vertical-rl">The full picture</span>
+</div>
 
 <main id="top">
 
 <!-- ============================================================ -->
 <!-- HERO -->
 <!-- ============================================================ -->
-<section class="relative flex min-h-[92svh] flex-col items-center justify-center overflow-hidden px-5 pt-24 pb-16 text-center">
+<section class="relative flex min-h-[92svh] flex-col items-center justify-center overflow-hidden px-5 pt-24 pb-20 text-center">
   <div class="grid-bg absolute inset-0" aria-hidden="true"></div>
+
+  <!-- Drifting puzzle field -->
+  <div id="pzField" class="absolute inset-0 z-[1]" aria-hidden="true">
+    <svg class="pz h-10 w-10" style="top:14%; left:8%; --dur:11s; --dx:14px; --dy:-20px; --r0:-12deg; --r1:-2deg" viewBox="0 0 24 24" fill="none" stroke="#2e2e2e" stroke-width="1.4"><use href="#pzPath"/></svg>
+    <svg class="pz h-6 w-6"  style="top:26%; left:18%; --dur:9s;  --dx:-10px; --dy:14px;  --r0:20deg;  --r1:32deg" viewBox="0 0 24 24" fill="none" stroke="#E2A63D" stroke-opacity=".45" stroke-width="1.4"><use href="#pzPath"/></svg>
+    <svg class="pz h-14 w-14" style="top:62%; left:6%;  --dur:13s; --dx:18px; --dy:10px;  --r0:8deg;   --r1:-6deg" viewBox="0 0 24 24" fill="none" stroke="#242424" stroke-width="1.2"><use href="#pzPath"/></svg>
+    <svg class="pz h-8 w-8"  style="top:74%; left:22%; --dur:10s; --dx:-14px; --dy:-12px; --r0:-24deg; --r1:-10deg" viewBox="0 0 24 24" fill="none" stroke="#3a3a3a" stroke-width="1.4"><use href="#pzPath"/></svg>
+    <svg class="pz h-9 w-9"  style="top:16%; right:10%; --dur:12s; --dx:-16px; --dy:18px; --r0:14deg;  --r1:26deg" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.4"><use href="#pzPath"/></svg>
+    <svg class="pz h-5 w-5"  style="top:34%; right:20%; --dur:8s;  --dx:10px;  --dy:-10px; --r0:-8deg; --r1:6deg" viewBox="0 0 24 24" fill="none" stroke="#E2A63D" stroke-opacity=".35" stroke-width="1.4"><use href="#pzPath"/></svg>
+    <svg class="pz h-12 w-12" style="top:60%; right:7%; --dur:14s; --dx:12px;  --dy:16px;  --r0:30deg; --r1:18deg" viewBox="0 0 24 24" fill="none" stroke="#282828" stroke-width="1.2"><use href="#pzPath"/></svg>
+    <svg class="pz h-7 w-7"  style="top:80%; right:24%; --dur:9.5s; --dx:-8px; --dy:-16px; --r0:0deg;  --r1:-14deg" viewBox="0 0 24 24" fill="none" stroke="#3a3a3a" stroke-width="1.4"><use href="#pzPath"/></svg>
+  </div>
 
   <div class="relative z-10 mx-auto max-w-4xl">
     <p class="font-mono text-[11px] uppercase tracking-[0.22em] text-accent md:text-xs">// Information Security, Governance &amp; Compliance</p>
 
-    <h1 class="mt-7 font-display font-black leading-[0.95] tracking-[-0.03em]" style="font-size: clamp(3rem, 10vw, 7.5rem);">
+    <!-- Name with puzzle burst on hover / tap -->
+    <h1 id="heroName" class="relative mt-7 inline-block cursor-default font-display font-black leading-[0.95] tracking-[-0.03em]" style="font-size: clamp(3rem, 10vw, 7.5rem);">
       UGONNA<br><span class="text-body">EZENEKWE</span>
+      <span class="burst-piece" style="top:10%; left:20%; --bx:-70px; --by:-60px; --br:-120deg"><svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="#E2A63D" stroke-width="1.6"><use href="#pzPath"/></svg></span>
+      <span class="burst-piece" style="top:0; left:55%; --bx:40px; --by:-90px; --br:160deg"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="1.6"><use href="#pzPath"/></svg></span>
+      <span class="burst-piece" style="top:30%; right:8%; --bx:90px; --by:-40px; --br:90deg"><svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="#E2A63D" stroke-width="1.6"><use href="#pzPath"/></svg></span>
+      <span class="burst-piece" style="bottom:10%; left:10%; --bx:-80px; --by:50px; --br:-90deg"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="1.6"><use href="#pzPath"/></svg></span>
+      <span class="burst-piece" style="bottom:0; right:25%; --bx:60px; --by:70px; --br:140deg"><svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="#E2A63D" stroke-width="1.6"><use href="#pzPath"/></svg></span>
     </h1>
 
     <p class="mx-auto mt-8 max-w-2xl text-balance text-base leading-relaxed text-body md:text-lg">
-      Aspiring GRC Analyst building security controls audits, risk assessments and incident reports mapped to NIST CSF, PCI DSS, GDPR and SOC frameworks.
+      Aspiring GRC Analyst assembling the full compliance picture, piece by piece: security controls audits, risk assessments and incident reports mapped to NIST CSF, PCI DSS, GDPR and SOC frameworks.
     </p>
 
     <p class="mt-6 font-mono text-[10px] uppercase tracking-[0.2em] text-faint md:text-[11px]">
@@ -151,74 +225,24 @@ tailwind.config = {
     </div>
   </div>
 
-  <!-- Audit-trail ticker line -->
-  <div class="absolute bottom-0 left-0 right-0 z-10 border-t border-line bg-bg/80">
-    <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-8 gap-y-1 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.16em] text-faint">
-      <span>NIST CSF</span><span class="text-line">·</span>
-      <span>PCI DSS</span><span class="text-line">·</span>
-      <span>GDPR / UK GDPR</span><span class="text-line">·</span>
-      <span>SOC 1 &amp; 2</span><span class="text-line">·</span>
-      <span>Risk Registers</span><span class="text-line">·</span>
-      <span>Gap Analysis</span><span class="text-line">·</span>
-      <span>Incident Reporting</span>
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================ -->
-<!-- FRAMEWORKS & COMPLIANCE TOOLCHAIN -->
-<!-- ============================================================ -->
-<section id="frameworks" class="mx-auto max-w-6xl scroll-mt-24 px-5 py-20 md:px-8 md:py-28">
-  <div class="reveal">
-    <p class="font-mono text-[11px] uppercase tracking-[0.2em] text-accent">[ 01 / Toolchain ]</p>
-    <h2 class="mt-5 max-w-2xl font-display text-3xl font-bold leading-tight tracking-tight md:text-5xl">Frameworks, competencies and tooling.</h2>
-  </div>
-
-  <div class="reveal mt-12 grid grid-cols-1 border border-line md:grid-cols-3">
-    <!-- Frameworks -->
-    <div class="border-b border-line p-7 md:border-b-0 md:border-r">
-      <div class="flex items-center gap-2.5">
-        <i data-lucide="shield-check" class="h-4 w-4 text-accent"></i>
-        <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-white">Frameworks &amp; Standards</h3>
+  <!-- Live-feeling stat strip -->
+  <div class="absolute bottom-0 left-0 right-0 z-10 border-t border-line bg-bg/85 backdrop-blur">
+    <div class="mx-auto grid max-w-6xl grid-cols-2 divide-x divide-line md:grid-cols-4">
+      <div class="px-4 py-4 text-center md:py-5">
+        <p class="font-display text-2xl font-bold text-white md:text-3xl"><span class="count" data-count="2">0</span></p>
+        <p class="mt-1 font-mono text-[9px] uppercase tracking-[0.16em] text-faint md:text-[10px]">Security Audits</p>
       </div>
-      <div class="mt-6 flex flex-wrap gap-2">
-        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">NIST CSF</span>
-        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">NIST Incident Response Lifecycle</span>
-        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">PCI DSS</span>
-        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">GDPR / UK GDPR</span>
-        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">SOC 1 &amp; SOC 2</span>
+      <div class="px-4 py-4 text-center md:py-5">
+        <p class="font-display text-2xl font-bold text-white md:text-3xl"><span class="count" data-count="4">0</span></p>
+        <p class="mt-1 font-mono text-[9px] uppercase tracking-[0.16em] text-faint md:text-[10px]">Incident Reports</p>
       </div>
-    </div>
-    <!-- Competencies -->
-    <div class="border-b border-line p-7 md:border-b-0 md:border-r">
-      <div class="flex items-center gap-2.5">
-        <i data-lucide="clipboard-check" class="h-4 w-4 text-accent"></i>
-        <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-white">Core Competencies</h3>
+      <div class="px-4 py-4 text-center md:py-5">
+        <p class="font-display text-2xl font-bold text-white md:text-3xl"><span class="count" data-count="4">0</span></p>
+        <p class="mt-1 font-mono text-[9px] uppercase tracking-[0.16em] text-faint md:text-[10px]">Journal Case Logs</p>
       </div>
-      <div class="mt-6 flex flex-wrap gap-2">
-        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Security Controls Auditing</span>
-        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Risk Assessment</span>
-        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Gap Analysis</span>
-        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Governance Documentation</span>
-        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Compliance Checklists</span>
-        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Incident Reporting</span>
-        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Event Monitoring</span>
-      </div>
-    </div>
-    <!-- Tools -->
-    <div class="p-7">
-      <div class="flex items-center gap-2.5">
-        <i data-lucide="terminal" class="h-4 w-4 text-accent"></i>
-        <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-white">Tools &amp; Platforms</h3>
-      </div>
-      <div class="mt-6 flex flex-wrap gap-2">
-        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Wireshark</span>
-        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">tcpdump</span>
-        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Linux (Ubuntu)</span>
-        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">SIEM Home Lab</span>
-        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Excel</span>
-        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">SPSS</span>
-        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Microsoft Office</span>
+      <div class="px-4 py-4 text-center md:py-5">
+        <p class="font-display text-2xl font-bold text-white md:text-3xl"><span class="count" data-count="5">0</span></p>
+        <p class="mt-1 font-mono text-[9px] uppercase tracking-[0.16em] text-faint md:text-[10px]">Frameworks Applied</p>
       </div>
     </div>
   </div>
@@ -230,13 +254,17 @@ tailwind.config = {
 <section id="audits" class="mx-auto max-w-6xl scroll-mt-24 px-5 py-20 md:px-8 md:py-28">
   <div class="reveal flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
     <div>
-      <p class="font-mono text-[11px] uppercase tracking-[0.2em] text-accent">[ 02 / Audit Case Studies ]</p>
+      <p class="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-accent">
+        <svg class="lock-in h-4 w-4" style="--fx:-30px; --fy:-20px" viewBox="0 0 24 24" fill="none" stroke="#E2A63D" stroke-width="1.6"><use href="#pzPath"/></svg>
+        [ 01 / Audit Case Studies ]
+      </p>
       <h2 class="mt-5 max-w-3xl font-display text-3xl font-bold leading-tight tracking-tight md:text-5xl">Controls audits, risk registers and incident reports.</h2>
+      <p class="mt-4 max-w-2xl text-sm text-body">Every card opens the full written report inside the page. No downloads needed to read the work.</p>
     </div>
     <a href="https://github.com/ugartificalg8djpg" target="_blank" rel="noopener" class="link-u w-fit text-sm text-body hover:text-white">All projects on GitHub →</a>
   </div>
 
-  <!-- Case study 01: Botium Toys -->
+  <!-- Flagship: Botium Toys -->
   <article class="card reveal mt-12 border border-line bg-elev p-7 md:p-10">
     <div class="flex flex-wrap items-center justify-between gap-3">
       <span class="font-mono text-[11px] uppercase tracking-[0.18em] text-accent">Controls &amp; Compliance Audit</span>
@@ -265,18 +293,18 @@ tailwind.config = {
     </div>
 
     <div class="mt-6 flex flex-wrap gap-4">
+      <button data-modal="mBotium" class="report-btn inline-flex items-center gap-2 border border-accent bg-accent/10 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.14em] text-accent transition-colors hover:bg-accent hover:text-bg">
+        <i data-lucide="file-search" class="h-3.5 w-3.5"></i> [ Read Full Report ]
+      </button>
       <a href="https://github.com/ugartificalg8djpg" target="_blank" rel="noopener" class="inline-flex items-center gap-2 border border-line px-4 py-2 font-mono text-[11px] uppercase tracking-[0.14em] text-body transition-colors hover:border-accent hover:text-accent">
-        <i data-lucide="file-text" class="h-3.5 w-3.5"></i> [ Audit Report ]
-      </a>
-      <a href="https://github.com/ugartificalg8djpg" target="_blank" rel="noopener" class="inline-flex items-center gap-2 border border-line px-4 py-2 font-mono text-[11px] uppercase tracking-[0.14em] text-body transition-colors hover:border-accent hover:text-accent">
-        <i data-lucide="table" class="h-3.5 w-3.5"></i> [ Risk Register ]
+        <i data-lucide="github" class="h-3.5 w-3.5"></i> [ GitHub ]
       </a>
     </div>
   </article>
 
   <div class="mt-6 grid gap-6 lg:grid-cols-2">
 
-    <!-- Case study 02: NIST CSF DoS incident -->
+    <!-- NIST CSF DoS -->
     <article class="card reveal flex flex-col border border-line bg-elev p-7">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <span class="font-mono text-[11px] uppercase tracking-[0.18em] text-accent">Incident Report · NIST CSF</span>
@@ -285,16 +313,21 @@ tailwind.config = {
       <h3 class="mt-4 font-display text-xl font-bold tracking-tight md:text-2xl">DoS Incident Analysis: ICMP Flood</h3>
       <p class="mt-2 font-mono text-xs text-faint">Independent · July 2026</p>
       <div class="mt-5 space-y-3 text-sm leading-relaxed text-body">
-        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Objective — </span>Analyse a two hour internal network outage caused by a sustained ICMP flood and structure the full response using the five NIST CSF functions.</p>
-        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Root cause — </span>An unconfigured perimeter firewall with no rate limiting or filtering allowed the flood straight into the internal network.</p>
-        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Outcome — </span>Recommended and documented ICMP rate limiting, source IP verification, network monitoring and IDS/IPS controls, with a staged recovery playbook restoring critical services first.</p>
+        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Objective: </span>Analyse a two hour internal network outage caused by a sustained ICMP flood and structure the full response using the five NIST CSF functions.</p>
+        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Root cause: </span>An unconfigured perimeter firewall with no rate limiting or filtering allowed the flood straight into the internal network.</p>
+        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Outcome: </span>Documented ICMP rate limiting, source IP verification, network monitoring and IDS/IPS controls, with a staged recovery playbook restoring critical services first.</p>
       </div>
-      <a href="https://github.com/ugartificalg8djpg/Google-Cybersecurity-lab-Applying-the-NIST-CSF-to-a-security-incident" target="_blank" rel="noopener" class="mt-auto inline-flex w-fit items-center gap-2 pt-6 font-mono text-[11px] uppercase tracking-[0.14em] text-body transition-colors hover:text-accent">
-        <i data-lucide="github" class="h-3.5 w-3.5"></i> [ View Repository ] <span aria-hidden="true">↗</span>
-      </a>
+      <div class="mt-auto flex flex-wrap gap-4 pt-6">
+        <button data-modal="mNist" class="report-btn inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-accent transition-colors hover:text-white">
+          <i data-lucide="file-search" class="h-3.5 w-3.5"></i> [ Read Full Report ]
+        </button>
+        <a href="https://github.com/ugartificalg8djpg/Google-Cybersecurity-lab-Applying-the-NIST-CSF-to-a-security-incident" target="_blank" rel="noopener" class="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-body transition-colors hover:text-accent">
+          <i data-lucide="github" class="h-3.5 w-3.5"></i> [ Repository ] <span aria-hidden="true">↗</span>
+        </a>
+      </div>
     </article>
 
-    <!-- Case study 03: Brute force / OS hardening -->
+    <!-- Brute force -->
     <article class="card reveal flex flex-col border border-line bg-elev p-7">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <span class="font-mono text-[11px] uppercase tracking-[0.18em] text-accent">Incident Report · OS Hardening</span>
@@ -303,16 +336,21 @@ tailwind.config = {
       <h3 class="mt-4 font-display text-xl font-bold tracking-tight md:text-2xl">Brute Force Attack &amp; Malicious Redirect</h3>
       <p class="mt-2 font-mono text-xs text-faint">Independent · July 2026</p>
       <div class="mt-5 space-y-3 text-sm leading-relaxed text-body">
-        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Objective — </span>Investigate a compromised recipe website luring visitors into downloading malware that redirected them to a spoofed domain.</p>
-        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Method — </span>Replicated the attack in a sandboxed VM and traced the full chain across DNS and HTTP tcpdump logs, confirming a brute force takeover of a default admin password.</p>
-        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Outcome — </span>Formal incident report recommending a strong password policy, multi factor authentication and login attempt limits.</p>
+        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Objective: </span>Investigate a compromised recipe website luring visitors into downloading malware that redirected them to a spoofed domain.</p>
+        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Method: </span>Replicated the attack in a sandboxed VM and traced the full chain across DNS and HTTP tcpdump logs, confirming a brute force takeover of a default admin password.</p>
+        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Outcome: </span>Formal incident report recommending a strong password policy, multi factor authentication and login attempt limits.</p>
       </div>
-      <a href="https://github.com/ugartificalg8djpg" target="_blank" rel="noopener" class="mt-auto inline-flex w-fit items-center gap-2 pt-6 font-mono text-[11px] uppercase tracking-[0.14em] text-body transition-colors hover:text-accent">
-        <i data-lucide="github" class="h-3.5 w-3.5"></i> [ View on GitHub ] <span aria-hidden="true">↗</span>
-      </a>
+      <div class="mt-auto flex flex-wrap gap-4 pt-6">
+        <button data-modal="mBrute" class="report-btn inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-accent transition-colors hover:text-white">
+          <i data-lucide="file-search" class="h-3.5 w-3.5"></i> [ Read Full Report ]
+        </button>
+        <a href="https://github.com/ugartificalg8djpg" target="_blank" rel="noopener" class="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-body transition-colors hover:text-accent">
+          <i data-lucide="github" class="h-3.5 w-3.5"></i> [ GitHub ] <span aria-hidden="true">↗</span>
+        </a>
+      </div>
     </article>
 
-    <!-- Case study 04: Wireshark -->
+    <!-- Wireshark -->
     <article class="card reveal flex flex-col border border-line bg-elev p-7">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <span class="font-mono text-[11px] uppercase tracking-[0.18em] text-accent">Network Traffic Analysis</span>
@@ -321,16 +359,21 @@ tailwind.config = {
       <h3 class="mt-4 font-display text-xl font-bold tracking-tight md:text-2xl">Wireshark DNS Outage Investigation</h3>
       <p class="mt-2 font-mono text-xs text-faint">Independent · July 2026</p>
       <div class="mt-5 space-y-3 text-sm leading-relaxed text-body">
-        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Objective — </span>Diagnose why customers could not reach a website, working from packet captures rather than assumptions.</p>
-        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Findings — </span>Repeated UDP requests to port 53 returned ICMP "port unreachable" errors, isolating the fault to a DNS server that was down or blocked, with a possible denial of service or misconfiguration as the cause.</p>
-        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Outcome — </span>Structured incident report separating evidence from interpretation and setting out the next investigative steps.</p>
+        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Objective: </span>Diagnose why customers could not reach a website, working from packet captures rather than assumptions.</p>
+        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Findings: </span>Repeated UDP requests to port 53 returned ICMP "port unreachable" errors, isolating the fault to a DNS server that was down or blocked.</p>
+        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Outcome: </span>Structured incident report separating evidence from interpretation and setting out the next investigative steps.</p>
       </div>
-      <a href="https://github.com/ugartificalg8djpg" target="_blank" rel="noopener" class="mt-auto inline-flex w-fit items-center gap-2 pt-6 font-mono text-[11px] uppercase tracking-[0.14em] text-body transition-colors hover:text-accent">
-        <i data-lucide="github" class="h-3.5 w-3.5"></i> [ View on GitHub ] <span aria-hidden="true">↗</span>
-      </a>
+      <div class="mt-auto flex flex-wrap gap-4 pt-6">
+        <button data-modal="mShark" class="report-btn inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-accent transition-colors hover:text-white">
+          <i data-lucide="file-search" class="h-3.5 w-3.5"></i> [ Read Full Report ]
+        </button>
+        <a href="https://github.com/ugartificalg8djpg" target="_blank" rel="noopener" class="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-body transition-colors hover:text-accent">
+          <i data-lucide="github" class="h-3.5 w-3.5"></i> [ GitHub ] <span aria-hidden="true">↗</span>
+        </a>
+      </div>
     </article>
 
-    <!-- Case study 05: Meridian -->
+    <!-- Meridian -->
     <article class="card reveal flex flex-col border border-line bg-elev p-7">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <span class="font-mono text-[11px] uppercase tracking-[0.18em] text-accent">End-to-End Internal Audit</span>
@@ -339,31 +382,220 @@ tailwind.config = {
       <h3 class="mt-4 font-display text-xl font-bold tracking-tight md:text-2xl">Meridian Health Partners Controls Audit</h3>
       <p class="mt-2 font-mono text-xs text-faint">Independent practice project · May to June 2026</p>
       <div class="mt-5 space-y-3 text-sm leading-relaxed text-body">
-        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Objective — </span>Run a full internal audit for a fictional mid-size healthcare company, from asset inventory through to remediation roadmap.</p>
-        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Scope — </span>Threat likelihood, control gap identification and risk register development across administrative, technical and physical control categories.</p>
-        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Outcome — </span>Written audit report presenting prioritised findings to technical and non-technical audiences, aligned to NIST CSF.</p>
+        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Objective: </span>Run a full internal audit for a fictional mid-size healthcare company, from asset inventory through to remediation roadmap.</p>
+        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Scope: </span>Threat likelihood, control gap identification and risk register development across administrative, technical and physical control categories.</p>
+        <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Outcome: </span>Written audit report presenting prioritised findings to technical and non-technical audiences, aligned to NIST CSF.</p>
       </div>
-      <a href="https://github.com/ugartificalg8djpg" target="_blank" rel="noopener" class="mt-auto inline-flex w-fit items-center gap-2 pt-6 font-mono text-[11px] uppercase tracking-[0.14em] text-body transition-colors hover:text-accent">
-        <i data-lucide="github" class="h-3.5 w-3.5"></i> [ View on GitHub ] <span aria-hidden="true">↗</span>
-      </a>
+      <div class="mt-auto flex flex-wrap gap-4 pt-6">
+        <a href="https://github.com/ugartificalg8djpg" target="_blank" rel="noopener" class="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-body transition-colors hover:text-accent">
+          <i data-lucide="github" class="h-3.5 w-3.5"></i> [ View on GitHub ] <span aria-hidden="true">↗</span>
+        </a>
+      </div>
     </article>
   </div>
+</section>
 
-  <!-- Supporting practice -->
-  <div class="reveal mt-6 grid gap-px border border-line bg-line md:grid-cols-2">
-    <div class="bg-bg p-6">
-      <div class="flex items-center gap-2.5">
-        <i data-lucide="book-open" class="h-4 w-4 text-accent"></i>
-        <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-white">Incident Handler's Journal</h3>
-      </div>
-      <p class="mt-3 text-sm leading-relaxed text-body">Ongoing journal applying the NIST incident response lifecycle to ransomware, phishing and data breach scenarios, recording the who, what, when, where and why of each event alongside tools used and lessons learned.</p>
+<!-- ============================================================ -->
+<!-- INCIDENT HANDLER'S JOURNAL (interactive, completed) -->
+<!-- ============================================================ -->
+<section id="journal" class="mx-auto max-w-6xl scroll-mt-24 px-5 py-20 md:px-8 md:py-28">
+  <div class="reveal">
+    <p class="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-accent">
+      <svg class="lock-in h-4 w-4" style="--fx:30px; --fy:-20px" viewBox="0 0 24 24" fill="none" stroke="#E2A63D" stroke-width="1.6"><use href="#pzPath"/></svg>
+      [ 02 / Incident Handler's Journal ]
+    </p>
+    <h2 class="mt-5 max-w-3xl font-display text-3xl font-bold leading-tight tracking-tight md:text-5xl">Four incident response cases, one consistent method.</h2>
+    <p class="mt-4 max-w-3xl text-sm leading-relaxed text-body">A completed log of incident response cases written while building SOC analyst skills. Every entry uses the same format: description, tools used, the 5 W's and follow-up notes, tagged with the matching NIST Incident Response Lifecycle phase. All company names, people, IP addresses and file hashes are fictitious and written for practice.</p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="reveal mt-10" role="tablist" aria-label="Journal entries">
+    <div class="grid grid-cols-2 gap-px border border-line bg-line md:grid-cols-4">
+      <button class="jtab bg-bg p-4 text-left transition-colors" role="tab" aria-selected="true" aria-controls="jp1" id="jt1" data-panel="jp1">
+        <p class="font-mono text-[10px] uppercase tracking-[0.14em] text-accent">Entry #1</p>
+        <p class="mt-1.5 text-sm font-semibold text-white">BEC Phishing Attempt</p>
+        <p class="mt-1 font-mono text-[9px] uppercase tracking-[0.12em] text-faint">Detection &amp; Analysis</p>
+      </button>
+      <button class="jtab bg-bg p-4 text-left transition-colors" role="tab" aria-selected="false" aria-controls="jp2" id="jt2" data-panel="jp2">
+        <p class="font-mono text-[10px] uppercase tracking-[0.14em] text-accent">Entry #2</p>
+        <p class="mt-1.5 text-sm font-semibold text-white">Ransomware via RDP</p>
+        <p class="mt-1 font-mono text-[9px] uppercase tracking-[0.12em] text-faint">Containment &amp; Recovery</p>
+      </button>
+      <button class="jtab bg-bg p-4 text-left transition-colors" role="tab" aria-selected="false" aria-controls="jp3" id="jt3" data-panel="jp3">
+        <p class="font-mono text-[10px] uppercase tracking-[0.14em] text-accent">Entry #3</p>
+        <p class="mt-1.5 text-sm font-semibold text-white">Insider Data Removal</p>
+        <p class="mt-1 font-mono text-[9px] uppercase tracking-[0.12em] text-faint">Post-Incident Activity</p>
+      </button>
+      <button class="jtab bg-bg p-4 text-left transition-colors" role="tab" aria-selected="false" aria-controls="jp4" id="jt4" data-panel="jp4">
+        <p class="font-mono text-[10px] uppercase tracking-[0.14em] text-accent">Entry #4</p>
+        <p class="mt-1.5 text-sm font-semibold text-white">Exposed Cloud Bucket</p>
+        <p class="mt-1 font-mono text-[9px] uppercase tracking-[0.12em] text-faint">Detection &amp; Analysis</p>
+      </button>
     </div>
+
+    <!-- Panels -->
+    <div class="border border-t-0 border-line bg-elev">
+
+      <!-- Entry 1 -->
+      <div id="jp1" class="jpanel active p-7 md:p-10" role="tabpanel" aria-labelledby="jt1">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <h3 class="font-display text-xl font-bold tracking-tight md:text-2xl">Business email compromise attempt</h3>
+          <span class="font-mono text-xs text-faint">03/03/2026 · 9:00 AM</span>
+        </div>
+        <div class="mt-6 grid gap-6 md:grid-cols-2">
+          <div class="space-y-4 text-sm leading-relaxed text-body">
+            <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-accent">Description · </span>The accounts payable team at a mid-sized architecture firm flagged an email requesting an urgent change to a vendor's payment routing number. The message impersonated a known supplier and was investigated as a suspected business email compromise (BEC) attempt.</p>
+            <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-accent">Tools used · </span>Email header analyser (message trace with SPF, DKIM and DMARC results), domain age lookup (WHOIS).</p>
+            <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-accent">The 5 W's · </span>An external actor spoofed the domain of a long-standing HVAC supplier from a look-alike domain registered nine days earlier, with the digit "1" substituted for the letter "l". The email arrived at 8:47 AM in the accounts payable inbox on the corporate Microsoft 365 tenant and was flagged by the clerk nine minutes later. No payment was released, so no compromise beyond the phishing attempt itself occurred.</p>
+          </div>
+          <div class="border border-linesoft bg-bg p-5 font-mono text-xs leading-relaxed text-body">
+            <p class="text-[10px] uppercase tracking-[0.14em] text-faint">Additional notes</p>
+            <p class="mt-3">Header analysis: SPF = fail, DKIM = none. Domain registered via a privacy-proxy registrar 9 days prior.</p>
+            <p class="mt-3">Actions taken: blocked sender domain at the mail gateway, notified the real supplier out-of-band, added a payment-change verification step (call-back to a known number) to the AP procedure.</p>
+            <p class="mt-3 text-accent">Open question: should look-alike domain monitoring be added for the top 20 vendors?</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Entry 2 -->
+      <div id="jp2" class="jpanel p-7 md:p-10" role="tabpanel" aria-labelledby="jt2">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <h3 class="font-display text-xl font-bold tracking-tight md:text-2xl">Ransomware via exposed RDP</h3>
+          <span class="font-mono text-xs text-faint">04/18/2026 · 2:00 AM</span>
+        </div>
+        <div class="mt-6 grid gap-6 md:grid-cols-2">
+          <div class="space-y-4 text-sm leading-relaxed text-body">
+            <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-accent">Description · </span>A file-encrypting ransomware variant was detected on two servers at a regional logistics company after an exposed remote desktop (RDP) port was brute-forced. The case covers containment through recovery.</p>
+            <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-accent">Tools used · </span>EDR alert console, firewall and VPN logs, offline backup restore procedure.</p>
+            <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-accent">The 5 W's · </span>An unattributed actor gained access via credential-stuffing against an internet-facing RDP endpoint (port 3389 left open on a warehouse management server). After roughly 40 minutes of repeated login attempts starting at 1:31 AM, the attacker authenticated with a weak local admin password, disabled the endpoint agent and deployed a payload that encrypted shared drives on two on-premises Windows servers. Encryption activity triggered an EDR alert at 2:14 AM. The port had been left exposed without MFA or IP allowlisting after a vendor's temporary remote-support setup was never rolled back.</p>
+          </div>
+          <div class="border border-linesoft bg-bg p-5 font-mono text-xs leading-relaxed text-body">
+            <p class="text-[10px] uppercase tracking-[0.14em] text-faint">Additional notes</p>
+            <p class="mt-3">Containment: isolated both hosts from the network, closed RDP at the perimeter firewall, rotated all local admin credentials.</p>
+            <p class="mt-3">Recovery: restored affected shares from the previous night's offline backup (4-hour data loss window). No ransom paid.</p>
+            <p class="mt-3 text-accent">Follow-up: audit all firewall rules for other temporary vendor-access exceptions; require MFA on any remote administration path going forward.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Entry 3 -->
+      <div id="jp3" class="jpanel p-7 md:p-10" role="tabpanel" aria-labelledby="jt3">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <h3 class="font-display text-xl font-bold tracking-tight md:text-2xl">Departing employee data removal</h3>
+          <span class="font-mono text-xs text-faint">05/22/2026 · 4:00 PM</span>
+        </div>
+        <div class="mt-6 grid gap-6 md:grid-cols-2">
+          <div class="space-y-4 text-sm leading-relaxed text-body">
+            <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-accent">Description · </span>A departing employee at a software company copied a customer contract archive to a personal USB drive three days before their resignation date. The case was reviewed for policy violation and closed out with process recommendations.</p>
+            <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-accent">Tools used · </span>DLP (data loss prevention) alert log, endpoint USB device history, HR offboarding checklist.</p>
+            <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-accent">The 5 W's · </span>A sales operations employee who had submitted their resignation but remained on payroll for a two-week transition period triggered a DLP rule with a bulk transfer of a shared drive folder containing signed customer contracts to an unregistered USB device at 4:05 PM, three business days before their last day, on a company-issued laptop on-site. USB storage was not blocked by policy for the role, and departing-employee monitoring was not yet in place until the final offboarding day.</p>
+          </div>
+          <div class="border border-linesoft bg-bg p-5 font-mono text-xs leading-relaxed text-body">
+            <p class="text-[10px] uppercase tracking-[0.14em] text-faint">Additional notes</p>
+            <p class="mt-3">Resolution: HR and legal were looped in; the employee confirmed and deleted the copy under supervision as a condition of a clean separation.</p>
+            <p class="mt-3">Process gap: departing-employee monitoring should begin at resignation notice, not on the last working day.</p>
+            <p class="mt-3 text-accent">Recommendation: block removable storage by default for roles with access to customer contract data, with exceptions granted case-by-case.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Entry 4 -->
+      <div id="jp4" class="jpanel p-7 md:p-10" role="tabpanel" aria-labelledby="jt4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <h3 class="font-display text-xl font-bold tracking-tight md:text-2xl">Misconfigured cloud storage bucket</h3>
+          <span class="font-mono text-xs text-faint">06/09/2026 · 12:00 PM</span>
+        </div>
+        <div class="mt-6 grid gap-6 md:grid-cols-2">
+          <div class="space-y-4 text-sm leading-relaxed text-body">
+            <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-accent">Description · </span>A misconfigured cloud storage bucket belonging to a health-and-wellness app was found publicly listable by an external security researcher, who reported it through the company's disclosure programme before any confirmed misuse.</p>
+            <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-accent">Tools used · </span>Cloud provider access logs, bucket policy and IAM review, responsible-disclosure intake ticket.</p>
+            <p><span class="font-mono text-[10px] uppercase tracking-[0.14em] text-accent">The 5 W's · </span>No malicious actor was identified. The exposure was traced to an internal engineering change that set a storage bucket's access policy to public during a migration, caught and reported responsibly before confirmed misuse.</p>
+          </div>
+          <div class="border border-linesoft bg-bg p-5 font-mono text-xs leading-relaxed text-body">
+            <p class="text-[10px] uppercase tracking-[0.14em] text-faint">Why this entry matters</p>
+            <p class="mt-3">Detection and analysis is not only about attackers. Configuration drift during routine engineering work is one of the most common causes of real-world data exposure.</p>
+            <p class="mt-3 text-accent">The journal applies the same 5 W's discipline whether the cause is an adversary, an insider or an honest mistake.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- FRAMEWORKS & COMPLIANCE TOOLCHAIN -->
+<!-- ============================================================ -->
+<section id="frameworks" class="mx-auto max-w-6xl scroll-mt-24 px-5 py-20 md:px-8 md:py-28">
+  <div class="reveal">
+    <p class="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-accent">
+      <svg class="lock-in h-4 w-4" style="--fx:-20px; --fy:30px" viewBox="0 0 24 24" fill="none" stroke="#E2A63D" stroke-width="1.6"><use href="#pzPath"/></svg>
+      [ 03 / Toolchain ]
+    </p>
+    <h2 class="mt-5 max-w-2xl font-display text-3xl font-bold leading-tight tracking-tight md:text-5xl">Frameworks, competencies and tooling.</h2>
+  </div>
+
+  <div class="reveal mt-12 grid grid-cols-1 border border-line md:grid-cols-3">
+    <div class="border-b border-line p-7 md:border-b-0 md:border-r">
+      <div class="flex items-center gap-2.5">
+        <i data-lucide="shield-check" class="h-4 w-4 text-accent"></i>
+        <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-white">Frameworks &amp; Standards</h3>
+      </div>
+      <div class="mt-6 flex flex-wrap gap-2">
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">NIST CSF</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">NIST Incident Response Lifecycle</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">PCI DSS</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">GDPR / UK GDPR</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">SOC 1 &amp; SOC 2</span>
+      </div>
+    </div>
+    <div class="border-b border-line p-7 md:border-b-0 md:border-r">
+      <div class="flex items-center gap-2.5">
+        <i data-lucide="clipboard-check" class="h-4 w-4 text-accent"></i>
+        <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-white">Core Competencies</h3>
+      </div>
+      <div class="mt-6 flex flex-wrap gap-2">
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Security Controls Auditing</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Risk Assessment</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Gap Analysis</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Governance Documentation</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Compliance Checklists</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Incident Reporting</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Event Monitoring</span>
+      </div>
+    </div>
+    <div class="p-7">
+      <div class="flex items-center gap-2.5">
+        <i data-lucide="terminal" class="h-4 w-4 text-accent"></i>
+        <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-white">Tools &amp; Platforms</h3>
+      </div>
+      <div class="mt-6 flex flex-wrap gap-2">
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Wireshark</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">tcpdump</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Linux (Ubuntu)</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">SIEM Home Lab</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Excel</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">SPSS</span>
+        <span class="border border-line px-3 py-1.5 font-mono text-xs text-body">Microsoft Office</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Home lab strip -->
+  <div class="reveal mt-6 grid gap-px border border-line bg-line md:grid-cols-2">
     <div class="bg-bg p-6">
       <div class="flex items-center gap-2.5">
         <i data-lucide="server" class="h-4 w-4 text-accent"></i>
         <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-white">Cybersecurity Home Lab</h3>
       </div>
       <p class="mt-3 text-sm leading-relaxed text-body">Ubuntu virtual machine simulating an enterprise network as a controlled sandbox, used for security monitoring exercises, incident identification, event correlation and hands-on exposure to SOC processes.</p>
+    </div>
+    <div class="bg-bg p-6">
+      <div class="flex items-center gap-2.5">
+        <i data-lucide="graduation-cap" class="h-4 w-4 text-accent"></i>
+        <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-white">Google Cybersecurity Certificate</h3>
+      </div>
+      <p class="mt-3 text-sm leading-relaxed text-body">In progress on Coursera, expected 2026. Completed: Foundations of Cybersecurity, Play It Safe: Managing Security Risk, and Connect and Protect: Networks and Network Security.</p>
     </div>
   </div>
 </section>
@@ -373,45 +605,35 @@ tailwind.config = {
 <!-- ============================================================ -->
 <section id="background" class="mx-auto max-w-6xl scroll-mt-24 px-5 py-20 md:px-8 md:py-28">
   <div class="reveal">
-    <p class="font-mono text-[11px] uppercase tracking-[0.2em] text-accent">[ 03 / Background ]</p>
-    <h2 class="mt-5 max-w-2xl font-display text-3xl font-bold leading-tight tracking-tight md:text-5xl">Experience, education and certification.</h2>
+    <p class="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-accent">
+      <svg class="lock-in h-4 w-4" style="--fx:20px; --fy:30px" viewBox="0 0 24 24" fill="none" stroke="#E2A63D" stroke-width="1.6"><use href="#pzPath"/></svg>
+      [ 04 / Background ]
+    </p>
+    <h2 class="mt-5 max-w-2xl font-display text-3xl font-bold leading-tight tracking-tight md:text-5xl">Experience and education.</h2>
   </div>
 
   <div class="reveal mt-12 border border-line">
-
-    <!-- Timeline row -->
     <div class="grid grid-cols-1 gap-4 border-b border-line p-7 md:grid-cols-[220px_1fr] md:gap-10">
-      <p class="font-mono text-xs uppercase tracking-[0.16em] text-faint">2026 — Present</p>
+      <p class="font-mono text-xs uppercase tracking-[0.16em] text-faint">2026 to Present</p>
       <div>
         <h3 class="font-display text-lg font-bold tracking-tight">Security Analyst (Independent Projects) · Self-employed</h3>
-        <p class="mt-2 max-w-3xl text-sm leading-relaxed text-body">Audited two fictional organisations against PCI DSS, GDPR, SOC and NIST CSF expectations, documented four structured incident reports, and evaluated network evidence with Wireshark and tcpdump. Deployed and configured an Ubuntu home lab to simulate an enterprise environment for monitoring and SOC-style exercises.</p>
+        <p class="mt-2 max-w-3xl text-sm leading-relaxed text-body">Audited two fictional organisations against PCI DSS, GDPR, SOC and NIST CSF expectations, documented four structured incident reports and a completed incident handler's journal, and evaluated network evidence with Wireshark and tcpdump. Deployed and configured an Ubuntu home lab to simulate an enterprise environment for monitoring and SOC-style exercises.</p>
       </div>
     </div>
-
     <div class="grid grid-cols-1 gap-4 border-b border-line p-7 md:grid-cols-[220px_1fr] md:gap-10">
-      <p class="font-mono text-xs uppercase tracking-[0.16em] text-faint">Dec 2025 — Present</p>
+      <p class="font-mono text-xs uppercase tracking-[0.16em] text-faint">Dec 2025 to Present</p>
       <div>
         <h3 class="font-display text-lg font-bold tracking-tight">Customer Team Member · Co-op</h3>
         <p class="mt-2 max-w-3xl text-sm leading-relaxed text-body">Processed several thousand pounds in daily transactions accurately under sustained pressure, and redesigned the fresh food stock rotation system with a date-priority process that reduced waste and avoidable losses.</p>
       </div>
     </div>
-
     <div class="grid grid-cols-1 gap-4 border-b border-line p-7 md:grid-cols-[220px_1fr] md:gap-10">
-      <p class="font-mono text-xs uppercase tracking-[0.16em] text-faint">Jan 2025 — Apr 2025</p>
+      <p class="font-mono text-xs uppercase tracking-[0.16em] text-faint">Jan 2025 to Apr 2025</p>
       <div>
         <h3 class="font-display text-lg font-bold tracking-tight">Justice Research and Communications Intern · Reimagining Criminal Justice C.I.C.</h3>
         <p class="mt-2 max-w-3xl text-sm leading-relaxed text-body">Maintained a structured stakeholder database of over 50 national and international organisations, drafted professional outreach correspondence on behalf of senior staff, and distilled complex documents into concise summaries for senior decision-makers.</p>
       </div>
     </div>
-
-    <div class="grid grid-cols-1 gap-4 border-b border-line p-7 md:grid-cols-[220px_1fr] md:gap-10">
-      <p class="font-mono text-xs uppercase tracking-[0.16em] text-faint">Certification</p>
-      <div>
-        <h3 class="font-display text-lg font-bold tracking-tight">Google Cybersecurity Professional Certificate · Coursera</h3>
-        <p class="mt-2 max-w-3xl text-sm leading-relaxed text-body">In progress, expected 2026. Completed: Foundations of Cybersecurity, Play It Safe: Managing Security Risk, and Connect and Protect: Networks and Network Security.</p>
-      </div>
-    </div>
-
     <div class="grid grid-cols-1 gap-4 p-7 md:grid-cols-[220px_1fr] md:gap-10">
       <p class="font-mono text-xs uppercase tracking-[0.16em] text-faint">Education</p>
       <div>
@@ -419,67 +641,31 @@ tailwind.config = {
         <p class="mt-2 max-w-3xl text-sm leading-relaxed text-body">Grounding in structured analysis, research methods and clear written communication, applied directly to risk assessment and governance documentation.</p>
       </div>
     </div>
-
-  </div>
-</section>
-
-<!-- ============================================================ -->
-<!-- CONTACT -->
-<!-- ============================================================ -->
-<section id="contact" class="mx-auto max-w-6xl scroll-mt-24 px-5 py-20 md:px-8 md:py-28">
-  <div class="reveal">
-    <p class="font-mono text-[11px] uppercase tracking-[0.2em] text-accent">[ 04 / Contact ]</p>
-    <h2 class="mt-5 max-w-3xl font-display text-3xl font-bold leading-tight tracking-tight md:text-5xl">Hiring for a junior GRC, compliance or audit role? Let's talk.</h2>
   </div>
 
-  <div class="reveal mt-12 grid gap-px border border-line bg-line lg:grid-cols-2">
-    <!-- Form -->
-    <div class="bg-bg p-7 md:p-10">
-      <form id="contactForm" class="space-y-5">
-        <div>
-          <label for="cName" class="font-mono text-[10px] uppercase tracking-[0.16em] text-faint">Name</label>
-          <input id="cName" name="name" type="text" required class="mt-2 w-full border border-line bg-transparent px-4 py-3 text-sm text-white placeholder-faint transition-colors" placeholder="Your name">
-        </div>
-        <div>
-          <label for="cEmail" class="font-mono text-[10px] uppercase tracking-[0.16em] text-faint">Email</label>
-          <input id="cEmail" name="email" type="email" required class="mt-2 w-full border border-line bg-transparent px-4 py-3 text-sm text-white placeholder-faint transition-colors" placeholder="you@company.com">
-        </div>
-        <div>
-          <label for="cMsg" class="font-mono text-[10px] uppercase tracking-[0.16em] text-faint">Message</label>
-          <textarea id="cMsg" name="message" rows="5" required class="mt-2 w-full resize-none border border-line bg-transparent px-4 py-3 text-sm text-white placeholder-faint transition-colors" placeholder="Role, company and how I can help"></textarea>
-        </div>
-        <button type="submit" class="inline-flex items-center gap-2 bg-white px-7 py-3.5 font-mono text-xs uppercase tracking-[0.14em] text-bg transition-colors hover:bg-accent">
-          Send message <i data-lucide="arrow-right" class="h-4 w-4"></i>
-        </button>
-        <p class="font-mono text-[10px] text-faint">Opens your email client with the message pre-filled.</p>
-      </form>
-    </div>
-
-    <!-- Direct badges -->
-    <div class="flex flex-col justify-center gap-4 bg-bg p-7 md:p-10">
-      <a href="mailto:ezenekweugowork04@outlook.com" class="group flex items-center justify-between border border-line px-5 py-4 transition-colors hover:border-accent">
-        <span class="flex items-center gap-3">
-          <i data-lucide="mail" class="h-4 w-4 text-accent"></i>
-          <span class="text-sm text-body group-hover:text-white">ezenekweugowork04@outlook.com</span>
-        </span>
-        <span class="font-mono text-xs text-faint" aria-hidden="true">↗</span>
-      </a>
-      <a href="https://www.linkedin.com/in/ugonna-ezenekwe-53617929b/" target="_blank" rel="noopener" class="group flex items-center justify-between border border-line px-5 py-4 transition-colors hover:border-accent">
-        <span class="flex items-center gap-3">
-          <i data-lucide="linkedin" class="h-4 w-4 text-accent"></i>
-          <span class="text-sm text-body group-hover:text-white">LinkedIn / ugonna-ezenekwe</span>
-        </span>
-        <span class="font-mono text-xs text-faint" aria-hidden="true">↗</span>
-      </a>
-      <a href="https://github.com/ugartificalg8djpg" target="_blank" rel="noopener" class="group flex items-center justify-between border border-line px-5 py-4 transition-colors hover:border-accent">
-        <span class="flex items-center gap-3">
-          <i data-lucide="github" class="h-4 w-4 text-accent"></i>
-          <span class="text-sm text-body group-hover:text-white">GitHub / ugartificalg8djpg</span>
-        </span>
-        <span class="font-mono text-xs text-faint" aria-hidden="true">↗</span>
-      </a>
-      <p class="mt-2 font-mono text-[10px] uppercase tracking-[0.16em] text-faint">[ Responses typically within 24 hours ]</p>
-    </div>
+  <!-- Direct links (contact form removed) -->
+  <div class="reveal mt-10 grid gap-px border border-line bg-line sm:grid-cols-3">
+    <a href="mailto:ezenekweugowork04@outlook.com" class="group flex items-center justify-between bg-bg px-5 py-4 transition-colors hover:bg-elev">
+      <span class="flex items-center gap-3">
+        <i data-lucide="mail" class="h-4 w-4 text-accent"></i>
+        <span class="text-sm text-body group-hover:text-white">Email</span>
+      </span>
+      <span class="font-mono text-xs text-faint" aria-hidden="true">↗</span>
+    </a>
+    <a href="https://www.linkedin.com/in/ugonna-ezenekwe-53617929b/" target="_blank" rel="noopener" class="group flex items-center justify-between bg-bg px-5 py-4 transition-colors hover:bg-elev">
+      <span class="flex items-center gap-3">
+        <i data-lucide="linkedin" class="h-4 w-4 text-accent"></i>
+        <span class="text-sm text-body group-hover:text-white">LinkedIn</span>
+      </span>
+      <span class="font-mono text-xs text-faint" aria-hidden="true">↗</span>
+    </a>
+    <a href="https://github.com/ugartificalg8djpg" target="_blank" rel="noopener" class="group flex items-center justify-between bg-bg px-5 py-4 transition-colors hover:bg-elev">
+      <span class="flex items-center gap-3">
+        <i data-lucide="github" class="h-4 w-4 text-accent"></i>
+        <span class="text-sm text-body group-hover:text-white">GitHub</span>
+      </span>
+      <span class="font-mono text-xs text-faint" aria-hidden="true">↗</span>
+    </a>
   </div>
 </section>
 
@@ -491,15 +677,181 @@ tailwind.config = {
 <footer class="border-t border-line">
   <div class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-5 py-8 md:flex-row md:px-8">
     <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-faint">© 2026 Ugonna Ezenekwe · London, UK</p>
-    <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-faint">[ GRC · Risk · Compliance · Audit ]</p>
+    <p class="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-faint">
+      <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="#E2A63D" stroke-width="1.6"><use href="#pzPath"/></svg>
+      [ GRC · Risk · Compliance · Audit ]
+    </p>
   </div>
 </footer>
 
+<!-- ============================================================ -->
+<!-- REPORT VIEWERS (modals) -->
+<!-- ============================================================ -->
+
+<!-- Botium report -->
+<div id="mBotium" class="modal fixed inset-0 z-[100] items-end justify-center bg-black/70 p-0 backdrop-blur-sm md:items-center md:p-8" role="dialog" aria-modal="true" aria-labelledby="mBotiumTitle">
+  <div class="modal-panel relative flex max-h-[92svh] w-full max-w-3xl flex-col border border-line bg-elev">
+    <div class="flex items-center justify-between border-b border-line px-6 py-4">
+      <div>
+        <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-accent">[ Audit Report · May 2026 ]</p>
+        <h3 id="mBotiumTitle" class="mt-1 font-display text-lg font-bold tracking-tight">Botium Toys Security Audit</h3>
+      </div>
+      <button class="modal-close flex h-9 w-9 items-center justify-center border border-line text-body transition-colors hover:border-accent hover:text-accent" aria-label="Close report">
+        <i data-lucide="x" class="h-4 w-4"></i>
+      </button>
+    </div>
+    <div class="overflow-y-auto px-6 py-6 text-sm leading-relaxed text-body">
+      <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-faint">Scenario</p>
+      <p class="mt-2">Botium Toys is a small fictional U.S. toy business with a single physical site acting as office, storefront and warehouse. Its online presence has grown internationally, and the IT manager commissioned an internal audit to secure infrastructure, identify risks to critical assets and check compliance obligations around online payments and E.U. business.</p>
+      <p class="mt-5 font-mono text-[10px] uppercase tracking-[0.16em] text-faint">Scope and goals</p>
+      <p class="mt-2">The entire security programme: company equipment and devices, the internal network and systems. Goals included reviewing controls against expectations, conducting a risk assessment, completing control assessments, assessing compliance and communicating results.</p>
+      <p class="mt-5 font-mono text-[10px] uppercase tracking-[0.16em] text-faint">Key findings</p>
+      <ul class="mt-2 space-y-2">
+        <li class="border-l-2 border-accent pl-3">No separation of duties or least privilege: every employee could access cardholder data and PII/SPII, increasing internal threat likelihood.</li>
+        <li class="border-l-2 border-accent pl-3">Customer credit card data stored unencrypted in plain text, a direct PCI DSS violation with financial and reputational consequences.</li>
+        <li class="border-l-2 border-line pl-3">Positives in place: a firewall with appropriately defined rules, antivirus software, and active monitoring by the IT department.</li>
+      </ul>
+      <p class="mt-5 font-mono text-[10px] uppercase tracking-[0.16em] text-faint">Compliance checklist highlights</p>
+      <div class="mt-2 overflow-x-auto">
+        <table class="w-full border-collapse font-mono text-xs">
+          <thead>
+            <tr class="border-b border-line text-left text-faint">
+              <th class="py-2 pr-4">Framework</th><th class="py-2 pr-4">Control</th><th class="py-2">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-linesoft"><td class="py-2 pr-4">PCI DSS</td><td class="py-2 pr-4">Authorised access control</td><td class="py-2 text-accent">Not satisfactory</td></tr>
+            <tr class="border-b border-linesoft"><td class="py-2 pr-4">PCI DSS</td><td class="py-2 pr-4">Data encryption procedures</td><td class="py-2 text-accent">Absent</td></tr>
+            <tr class="border-b border-linesoft"><td class="py-2 pr-4">GDPR</td><td class="py-2 pr-4">Breach notification (72 hours)</td><td class="py-2">Adequate</td></tr>
+            <tr class="border-b border-linesoft"><td class="py-2 pr-4">GDPR</td><td class="py-2 pr-4">Data classification and inventory</td><td class="py-2 text-accent">Incomplete</td></tr>
+            <tr class="border-b border-linesoft"><td class="py-2 pr-4">SOC 1/2</td><td class="py-2 pr-4">User access policies</td><td class="py-2 text-accent">Absent</td></tr>
+            <tr><td class="py-2 pr-4">SOC 1/2</td><td class="py-2 pr-4">Data integrity</td><td class="py-2">Adequate</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="mt-5 font-mono text-[10px] uppercase tracking-[0.16em] text-faint">Recommendations</p>
+      <ul class="mt-2 space-y-2">
+        <li><span class="font-mono text-xs text-accent">[HIGH · Technical]</span> Deploy IDS and encryption of sensitive data.</li>
+        <li><span class="font-mono text-xs text-accent">[HIGH · Administrative]</span> Implement least privilege and a robust password policy.</li>
+        <li><span class="font-mono text-xs text-faint">[MEDIUM · Administrative]</span> Establish an incident response plan.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- NIST CSF report -->
+<div id="mNist" class="modal fixed inset-0 z-[100] items-end justify-center bg-black/70 p-0 backdrop-blur-sm md:items-center md:p-8" role="dialog" aria-modal="true" aria-labelledby="mNistTitle">
+  <div class="modal-panel relative flex max-h-[92svh] w-full max-w-3xl flex-col border border-line bg-elev">
+    <div class="flex items-center justify-between border-b border-line px-6 py-4">
+      <div>
+        <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-accent">[ Incident Report · July 2026 ]</p>
+        <h3 id="mNistTitle" class="mt-1 font-display text-lg font-bold tracking-tight">Applying the NIST CSF to a DoS Incident</h3>
+      </div>
+      <button class="modal-close flex h-9 w-9 items-center justify-center border border-line text-body transition-colors hover:border-accent hover:text-accent" aria-label="Close report">
+        <i data-lucide="x" class="h-4 w-4"></i>
+      </button>
+    </div>
+    <div class="overflow-y-auto px-6 py-6 text-sm leading-relaxed text-body">
+      <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-faint">Summary</p>
+      <p class="mt-2">At approximately 09:20, all internal network services stopped responding. Investigation showed the network was overwhelmed by a sustained flood of incoming ICMP packets, consistent with a denial of service attack. The team contained the event by blocking incoming ICMP traffic at the perimeter, taking non-critical services offline and prioritising restoration of critical services. Normal operations were disrupted for around two hours. The attacker exploited a firewall that had been left unconfigured, with no rate limiting or filtering in place.</p>
+      <div class="mt-5 space-y-4">
+        <div class="border border-linesoft bg-bg p-4">
+          <p class="font-mono text-xs uppercase tracking-[0.14em] text-accent">Identify</p>
+          <p class="mt-2">A full audit of the network, affected systems and perimeter devices confirmed the root cause: an unconfigured firewall with no rules restricting inbound ICMP traffic. The affected assets were the internal network and every dependent service. No evidence of data access or exfiltration; the attack targeted availability, not confidentiality.</p>
+        </div>
+        <div class="border border-linesoft bg-bg p-4">
+          <p class="font-mono text-xs uppercase tracking-[0.14em] text-accent">Protect</p>
+          <p class="mt-2">The firewall is now fully configured with a rule that rate-limits incoming ICMP packets, and source IP address verification checks for spoofed addresses. An IDS/IPS filters ICMP traffic with suspicious characteristics. Firewall configurations will be reviewed on a regular schedule and staff will receive secure configuration training.</p>
+        </div>
+        <div class="border border-linesoft bg-bg p-4">
+          <p class="font-mono text-xs uppercase tracking-[0.14em] text-accent">Detect</p>
+          <p class="mt-2">Network monitoring software alerts on abnormal traffic patterns and ICMP volume spikes. Firewall logging has been enabled so inbound traffic can be baselined against normal daily patterns, and user account activity is tracked to flag unusual behaviour.</p>
+        </div>
+        <div class="border border-linesoft bg-bg p-4">
+          <p class="font-mono text-xs uppercase tracking-[0.14em] text-accent">Respond</p>
+          <p class="mt-2">The plan for future incidents: isolate affected systems quickly, block offending traffic at the perimeter and shed non-critical services to preserve capacity. All incidents are reported to upper management with legal and regulatory notifications met where applicable, followed by structured post-incident analysis.</p>
+        </div>
+        <div class="border border-linesoft bg-bg p-4">
+          <p class="font-mono text-xs uppercase tracking-[0.14em] text-accent">Recover</p>
+          <p class="mt-2">Recovery was staged: attack traffic stayed blocked while congestion cleared, critical services returned first, and non-critical services were restored last once monitoring confirmed stability. This forms the recovery playbook for future availability incidents.</p>
+        </div>
+      </div>
+      <p class="mt-5 border-l-2 border-accent pl-3 text-body">Reflection: a single overlooked control, one unconfigured firewall, was enough to take the entire internal network offline for two hours. Availability attacks do not need sophisticated intrusion, only an unguarded entry point, so perimeter configuration reviews are now a standing programme item.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Brute force report -->
+<div id="mBrute" class="modal fixed inset-0 z-[100] items-end justify-center bg-black/70 p-0 backdrop-blur-sm md:items-center md:p-8" role="dialog" aria-modal="true" aria-labelledby="mBruteTitle">
+  <div class="modal-panel relative flex max-h-[92svh] w-full max-w-3xl flex-col border border-line bg-elev">
+    <div class="flex items-center justify-between border-b border-line px-6 py-4">
+      <div>
+        <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-accent">[ Incident Report · July 2026 ]</p>
+        <h3 id="mBruteTitle" class="mt-1 font-display text-lg font-bold tracking-tight">Brute Force Attack &amp; Malicious Redirect</h3>
+      </div>
+      <button class="modal-close flex h-9 w-9 items-center justify-center border border-line text-body transition-colors hover:border-accent hover:text-accent" aria-label="Close report">
+        <i data-lucide="x" class="h-4 w-4"></i>
+      </button>
+    </div>
+    <div class="overflow-y-auto px-6 py-6 text-sm leading-relaxed text-body">
+      <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-faint">Scenario</p>
+      <p class="mt-2">A former employee of a recipe website brute-forced the administrative account by repeatedly entering known default passwords, embedded JavaScript that prompted visitors to download an executable disguised as a browser update, then changed the admin password. Customers who ran the file were redirected to a spoofed clone of the site containing malware, and reported slower machines to the helpdesk.</p>
+      <p class="mt-5 font-mono text-[10px] uppercase tracking-[0.16em] text-faint">Investigation</p>
+      <p class="mt-2">The attack was replicated in a sandboxed virtual machine while capturing traffic with tcpdump. The trace showed the browser resolving the legitimate domain over DNS (port 52444 to the DNS server), establishing an HTTP connection on port 80 confirmed by the SYN handshake flags, then the file download. Minutes later the capture showed a second DNS resolution for the spoofed domain and a new HTTP connection from a fresh source port, confirming the downloaded file redirected users to an attacker-controlled site.</p>
+      <div class="mt-4 border border-linesoft bg-bg p-4 font-mono text-xs leading-relaxed text-body">
+        <p class="text-faint">// Extract from the tcpdump trace narrative</p>
+        <p class="mt-2">14:18:32 · DNS A? query for the legitimate domain, answered 203.0.113.22</p>
+        <p>14:18:36 · TCP SYN / SYN-ACK to port 80, HTTP GET / HTTP/1.1</p>
+        <p>14:20:32 · New DNS A? query for the spoofed domain, answered 192.0.2.17</p>
+        <p>14:25:29 · New HTTP session to the spoofed site from source port 56378</p>
+      </div>
+      <p class="mt-5 font-mono text-[10px] uppercase tracking-[0.16em] text-faint">Protocol identified</p>
+      <p class="mt-2">HTTP at the application layer. Both the legitimate and spoofed sites communicated over port 80, and the malicious file was transported to user machines over HTTP.</p>
+      <p class="mt-5 font-mono text-[10px] uppercase tracking-[0.16em] text-faint">Recommendations</p>
+      <ul class="mt-2 space-y-2">
+        <li class="border-l-2 border-accent pl-3">Enforce a password policy requiring longer passwords with special characters, numbers and capitals, replacing default credentials immediately.</li>
+        <li class="border-l-2 border-accent pl-3">Add multi factor authentication as a second layer of identity proof.</li>
+        <li class="border-l-2 border-accent pl-3">Limit login attempts to blunt brute force attacks at source.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Wireshark report -->
+<div id="mShark" class="modal fixed inset-0 z-[100] items-end justify-center bg-black/70 p-0 backdrop-blur-sm md:items-center md:p-8" role="dialog" aria-modal="true" aria-labelledby="mSharkTitle">
+  <div class="modal-panel relative flex max-h-[92svh] w-full max-w-3xl flex-col border border-line bg-elev">
+    <div class="flex items-center justify-between border-b border-line px-6 py-4">
+      <div>
+        <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-accent">[ Incident Report · July 2026 ]</p>
+        <h3 id="mSharkTitle" class="mt-1 font-display text-lg font-bold tracking-tight">Wireshark DNS Outage Investigation</h3>
+      </div>
+      <button class="modal-close flex h-9 w-9 items-center justify-center border border-line text-body transition-colors hover:border-accent hover:text-accent" aria-label="Close report">
+        <i data-lucide="x" class="h-4 w-4"></i>
+      </button>
+    </div>
+    <div class="overflow-y-auto px-6 py-6 text-sm leading-relaxed text-body">
+      <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-faint">Incident</p>
+      <p class="mt-2">Customers reported a "destination port unreachable" error when attempting to visit a website. Packet sniffing tests were conducted in Wireshark to investigate. Note: IP addresses and the domain in the working log are anonymised stand-ins so nothing traces back to a real environment.</p>
+      <div class="mt-4 border border-linesoft bg-bg p-4 font-mono text-xs leading-relaxed text-body">
+        <p class="text-faint">// Pattern repeating across the capture</p>
+        <p class="mt-2">13:24:32 · UDP DNS A? query from the client to the DNS server (port 53)</p>
+        <p>13:24:36 · ICMP reply: udp port 53 unreachable</p>
+        <p class="mt-1 text-faint">// Same request retried at 13:26 and 13:28, same ICMP error each time</p>
+      </div>
+      <p class="mt-5 font-mono text-[10px] uppercase tracking-[0.16em] text-faint">Analysis</p>
+      <p class="mt-2">The UDP protocol carried the DNS query to resolve the domain, and ICMP carried the error response back. Because port 53 is the port associated with DNS, the repeated "udp port 53 unreachable" errors isolate the fault to the DNS service itself: the request never reached a working DNS listener. The A? flag on each query confirms the client was performing standard A-record resolution when the failures occurred.</p>
+      <p class="mt-5 font-mono text-[10px] uppercase tracking-[0.16em] text-faint">Conclusion and next steps</p>
+      <p class="mt-2">It is highly likely the DNS server is not responding, either down due to a successful denial of service attack or misconfigured. The next investigative step is to determine whether the DNS server itself is offline or whether traffic to port 53 is being blocked by the firewall.</p>
+    </div>
+  </div>
+</div>
+
 <script>
-  // Icons
   lucide.createIcons();
 
-  // Mobile menu
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ----- Mobile menu -----
   const menuBtn = document.getElementById('menuBtn');
   const mobileMenu = document.getElementById('mobileMenu');
   menuBtn.addEventListener('click', () => {
@@ -511,21 +863,103 @@ tailwind.config = {
     menuBtn.setAttribute('aria-expanded', 'false');
   }));
 
-  // Scroll reveal
+  // ----- Scroll reveal + puzzle lock-ins -----
   const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); observer.unobserve(e.target); } });
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        e.target.querySelectorAll('.lock-in').forEach(p => p.classList.add('in'));
+        observer.unobserve(e.target);
+      }
+    });
   }, { threshold: 0.12 });
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-  // Contact form: build a mailto so the static page needs no backend
-  document.getElementById('contactForm').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const name = document.getElementById('cName').value.trim();
-    const email = document.getElementById('cEmail').value.trim();
-    const msg = document.getElementById('cMsg').value.trim();
-    const subject = encodeURIComponent('Portfolio enquiry from ' + name);
-    const body = encodeURIComponent(msg + '\n\nFrom: ' + name + ' (' + email + ')');
-    window.location.href = 'mailto:ezenekweugowork04@outlook.com?subject=' + subject + '&body=' + body;
+  // ----- Hero name puzzle burst -----
+  const heroName = document.getElementById('heroName');
+  let burstTimer = null;
+  function triggerBurst() {
+    if (reduceMotion) return;
+    heroName.classList.remove('bursting');
+    void heroName.offsetWidth; // restart animation
+    heroName.classList.add('bursting');
+    clearTimeout(burstTimer);
+    burstTimer = setTimeout(() => heroName.classList.remove('bursting'), 1200);
+  }
+  heroName.addEventListener('mouseenter', triggerBurst);
+  heroName.addEventListener('click', triggerBurst);
+  // One burst on load for first impressions
+  window.addEventListener('load', () => setTimeout(triggerBurst, 600));
+
+  // ----- Stat count-up -----
+  const counts = document.querySelectorAll('.count');
+  const countObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const el = e.target;
+      const target = parseInt(el.dataset.count, 10);
+      if (reduceMotion) { el.textContent = target; countObs.unobserve(el); return; }
+      let cur = 0;
+      const step = () => {
+        cur += Math.max(1, Math.round(target / 20));
+        if (cur >= target) { el.textContent = target; return; }
+        el.textContent = cur;
+        setTimeout(step, 80);
+      };
+      step();
+      countObs.unobserve(el);
+    });
+  }, { threshold: 0.4 });
+  counts.forEach(c => countObs.observe(c));
+
+  // ----- Scroll progress puzzle pieces -----
+  const secIds = ['audits', 'journal', 'frameworks', 'background'];
+  const pieces = document.querySelectorAll('#pzProgress .pp');
+  const secObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      pieces.forEach(p => {
+        if (p.dataset.sec === e.target.id) {
+          p.setAttribute('stroke', '#E2A63D');
+          p.style.filter = 'drop-shadow(0 0 4px rgba(226,166,61,.5))';
+        }
+      });
+    });
+  }, { threshold: 0.25 });
+  secIds.forEach(id => { const s = document.getElementById(id); if (s) secObs.observe(s); });
+
+  // ----- Journal tabs -----
+  document.querySelectorAll('.jtab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.jtab').forEach(t => t.setAttribute('aria-selected', 'false'));
+      document.querySelectorAll('.jpanel').forEach(p => p.classList.remove('active'));
+      tab.setAttribute('aria-selected', 'true');
+      document.getElementById(tab.dataset.panel).classList.add('active');
+    });
+  });
+
+  // ----- Report modals -----
+  let lastFocus = null;
+  function openModal(id) {
+    lastFocus = document.activeElement;
+    const m = document.getElementById(id);
+    m.classList.add('open');
+    document.body.classList.add('modal-locked');
+    const closeBtn = m.querySelector('.modal-close');
+    if (closeBtn) closeBtn.focus();
+  }
+  function closeModal(m) {
+    m.classList.remove('open');
+    document.body.classList.remove('modal-locked');
+    if (lastFocus) lastFocus.focus();
+  }
+  document.querySelectorAll('.report-btn').forEach(b => b.addEventListener('click', () => openModal(b.dataset.modal)));
+  document.querySelectorAll('.modal').forEach(m => {
+    m.addEventListener('click', (e) => { if (e.target === m) closeModal(m); });
+    m.querySelectorAll('.modal-close').forEach(c => c.addEventListener('click', () => closeModal(m)));
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') document.querySelectorAll('.modal.open').forEach(m => closeModal(m));
   });
 </script>
 
