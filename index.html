@@ -1362,13 +1362,32 @@ udp port 53 unreachable length 150</pre>
     const timers = [];
     let finished = false;
 
+    // Stop the browser restoring the old scroll position on refresh
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
+    function toTop() {
+      window.scrollTo(0, 0);
+      if (document.documentElement) document.documentElement.scrollTop = 0;
+      if (document.body) document.body.scrollTop = 0;
+    }
+    toTop();
+
     function unlock() {
       if (finished) return;
       finished = true;
       timers.forEach(clearTimeout);
+      toTop();
       gate.classList.add('done');
       document.body.classList.remove('gated');
-      setTimeout(function () { if (gate.parentNode) gate.remove(); }, 700);
+      // Hold the top through the fade, in case the browser nudges it back
+      toTop();
+      requestAnimationFrame(toTop);
+      setTimeout(toTop, 120);
+      setTimeout(function () {
+        toTop();
+        if (gate.parentNode) gate.remove();
+        if (typeof updateProgress === 'function') updateProgress();
+      }, 700);
     }
     function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
 
