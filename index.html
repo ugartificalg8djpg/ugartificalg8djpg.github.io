@@ -1387,9 +1387,11 @@ tailwind.config = {
         '<span class="font-mono text-[10px] uppercase tracking-[0.08em]" style="color:' + sev.color + '">&#9650; ' + sev.name + '</span>' +
         '<span class="hidden font-mono text-[10px] uppercase tracking-[0.08em] text-faint sm:inline">' + status + '</span>';
       feed.prepend(row);
-      while (feed.children.length > 8) {
-        const last = feed.lastElementChild;
-        if (animate) { last.style.animation = 'rowOut .4s ease both'; setTimeout(() => last.remove(), 380); }
+      const liveRows = Array.prototype.slice.call(feed.children).filter(function (r) { return !r.dataset.removing; });
+      while (liveRows.length > 8) {
+        const last = liveRows.pop();
+        last.dataset.removing = '1';
+        if (animate) { last.style.animation = 'rowOut .4s ease both'; setTimeout(function () { last.remove(); }, 380); }
         else last.remove();
       }
       notables += 1;
@@ -1399,27 +1401,54 @@ tailwind.config = {
 
     if (reduceMotion) return; // static snapshot for reduced motion
 
-    function feedLoop() {
-      addRow(true);
-      setTimeout(feedLoop, 1800 + Math.random() * 1600);
+    // Loops only run while the dashboard is actually on screen and the tab is visible
+    let running = false, feedTimer = null, donutTimer = null, barTimer = null, sparkTimer = null;
+    function startLoops() {
+      if (running) return;
+      running = true;
+      const loop = function () {
+        if (!running) return;
+        addRow(true);
+        feedTimer = setTimeout(loop, 1800 + Math.random() * 1600);
+      };
+      feedTimer = setTimeout(loop, 900);
+      donutTimer = setInterval(function () {
+        Object.keys(DONUTS).forEach(function (k) {
+          const svg = document.querySelector('[data-donut="' + k + '"]');
+          if (svg) updateDonut(svg, DONUTS[k]);
+        });
+        updateDonutCounts();
+      }, 2600);
+      barTimer = setInterval(function () {
+        const r = updateBars();
+        updateThreat(r.critVal, r.highVal);
+      }, 2200);
+      sparkTimer = setInterval(function () {
+        sparkVals.shift();
+        sparkVals.push(Math.max(4, Math.min(30, sparkVals[sparkVals.length - 1] + (Math.random() * 12 - 6))));
+        drawSpark();
+      }, 900);
     }
-    setTimeout(feedLoop, 1200);
-    setInterval(() => {
-      Object.keys(DONUTS).forEach(k => {
-        const svg = document.querySelector('[data-donut="' + k + '"]');
-        if (svg) updateDonut(svg, DONUTS[k]);
+    function stopLoops() {
+      running = false;
+      clearTimeout(feedTimer); clearInterval(donutTimer); clearInterval(barTimer); clearInterval(sparkTimer);
+    }
+    const monEl = document.getElementById('monitor');
+    function monVisible() {
+      const r = monEl.getBoundingClientRect();
+      return r.bottom > 0 && r.top < window.innerHeight;
+    }
+    const monObs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (document.hidden) return;
+        if (e.isIntersecting) startLoops(); else stopLoops();
       });
-      updateDonutCounts();
-    }, 2600);
-    setInterval(() => {
-      const r = updateBars();
-      updateThreat(r.critVal, r.highVal);
-    }, 2200);
-    setInterval(() => {
-      sparkVals.shift();
-      sparkVals.push(Math.max(4, Math.min(30, sparkVals[sparkVals.length - 1] + (Math.random() * 12 - 6))));
-      drawSpark();
-    }, 900);
+    }, { threshold: 0.05 });
+    monObs.observe(monEl);
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) stopLoops();
+      else if (monVisible()) startLoops();
+    });
   })();
 
   // ----- Global puzzle field: pieces scattered down the whole page -----
@@ -1433,14 +1462,14 @@ tailwind.config = {
     const H = document.documentElement.scrollHeight;
     c.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:' + H + 'px;overflow:hidden;pointer-events:none;z-index:0;';
     const startY = window.innerHeight; // hero has its own field
-    const N = Math.max(30, Math.round((H - startY) / 110));
+    const N = Math.min(36, Math.max(20, Math.round((H - startY) / 160)));
     for (let i = 0; i < N; i++) {
       const wrap = document.createElement('div');
       wrap.className = 'pz-par';
       const size = (12 + Math.random() * 30).toFixed(0);
       const top = startY + Math.random() * (H - startY - 120);
       const left = (Math.random() * 96).toFixed(1);
-      wrap.style.cssText = 'position:absolute;top:' + top + 'px;left:' + left + '%;width:' + size + 'px;height:' + size + 'px;will-change:transform;';
+      wrap.style.cssText = 'position:absolute;top:' + top + 'px;left:' + left + '%;width:' + size + 'px;height:' + size + 'px;';
       wrap.dataset.f = (Math.random() * 0.12 - 0.06).toFixed(3);
       const col = PZ_COLORS[Math.floor(Math.random() * PZ_COLORS.length)];
       const rot = Math.round(Math.random() * 360);
@@ -1454,16 +1483,24 @@ tailwind.config = {
     document.body.prepend(c);
   }
   function parallaxField() {
-    if (reduceMotion) return;
+    if (reduceMotion || window.innerWidth < 768) return;
     const y = window.scrollY;
     document.querySelectorAll('.pz-par').forEach(p => {
       p.style.transform = 'translateY(' + (y * parseFloat(p.dataset.f)).toFixed(1) + 'px)';
     });
   }
   let resizeTimer = null;
+  let lastFieldWidth = window.innerWidth;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(buildField, 300);
+    resizeTimer = setTimeout(() => {
+      // Mobile browsers fire resize when the URL bar collapses during scroll;
+      // only rebuild the field when the width genuinely changes
+      if (Math.abs(window.innerWidth - lastFieldWidth) > 60) {
+        lastFieldWidth = window.innerWidth;
+        buildField();
+      }
+    }, 300);
   });
   window.addEventListener('load', () => { buildField(); parallaxField(); });
 
