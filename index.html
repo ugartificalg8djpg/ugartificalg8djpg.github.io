@@ -149,6 +149,41 @@ tailwind.config = {
     .live-dot, .soc-row, .soc-row.out { animation: none !important; opacity: 1 !important; }
   }
 
+  /* ---------- Access terminal intro ---------- */
+  #gate {
+    position: fixed; inset: 0; z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    background: #060B16; padding: 1.25rem;
+    transition: opacity .6s ease, visibility .6s ease;
+  }
+  #gate.done { opacity: 0; visibility: hidden; }
+  body.gated { overflow: hidden; }
+  .gate-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(to right, rgba(30,48,80,.4) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(30,48,80,.4) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 20%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 20%, transparent 75%);
+  }
+  @keyframes caret { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+  .caret { display: inline-block; width: 8px; height: 1em; background: #4FC3F7; vertical-align: text-bottom; animation: caret 1s steps(1) infinite; }
+  @keyframes granted {
+    0%   { opacity: 0; transform: scale(.9); letter-spacing: .5em; }
+    100% { opacity: 1; transform: scale(1); letter-spacing: .22em; }
+  }
+  .granted { animation: granted .5s ease-out both; }
+  @keyframes gatePiece {
+    0%   { opacity: 0; transform: translate(var(--gx,-30px), var(--gy,-20px)) rotate(-30deg) scale(.5); }
+    100% { opacity: 1; transform: none; }
+  }
+  .gate-pz { opacity: 0; }
+  .gate-pz.in { animation: gatePiece .5s cubic-bezier(.2,.8,.3,1.1) both; }
+  @media (prefers-reduced-motion: reduce) {
+    .caret, .granted, .gate-pz { animation: none !important; opacity: 1 !important; }
+  }
+
   /* Scroll reveal */
   .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
   .reveal.in { opacity: 1; transform: none; }
@@ -188,7 +223,57 @@ tailwind.config = {
 </style>
 </head>
 
-<body class="bg-bg text-white font-sans antialiased overflow-x-clip">
+<body class="bg-bg text-white font-sans antialiased overflow-x-clip gated">
+
+<!-- ============================================================ -->
+<!-- ACCESS TERMINAL INTRO -->
+<!-- ============================================================ -->
+<div id="gate" role="presentation">
+  <div class="gate-grid" aria-hidden="true"></div>
+
+  <div class="relative w-full max-w-lg border border-line bg-elev">
+    <!-- Terminal bar -->
+    <div class="flex items-center justify-between border-b border-line px-4 py-2.5">
+      <span class="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.16em] text-faint">
+        <span class="live-dot inline-block h-2 w-2 rounded-full bg-accent"></span>
+        secure-access // portfolio
+      </span>
+      <div class="flex gap-1.5" aria-hidden="true">
+        <span class="h-2 w-2 rounded-full bg-[#1C2B47]"></span>
+        <span class="h-2 w-2 rounded-full bg-[#1C2B47]"></span>
+        <span class="h-2 w-2 rounded-full bg-[#1C2B47]"></span>
+      </div>
+    </div>
+
+    <!-- Terminal body -->
+    <div class="px-6 py-7 font-mono text-sm leading-relaxed">
+      <p class="text-faint">$ connect ugonna-ezenekwe.portfolio</p>
+      <p class="mt-1 text-faint">establishing session<span id="gDots"></span></p>
+
+      <div class="mt-5 space-y-2">
+        <p><span class="text-faint">username:</span> <span id="gUser" class="text-white"></span><span id="gUserCaret" class="caret"></span></p>
+        <p><span class="text-faint">password:</span> <span id="gPass" class="text-white"></span><span id="gPassCaret" class="caret" style="display:none"></span></p>
+      </div>
+
+      <div id="gStatus" class="mt-6 min-h-[3.5rem]"></div>
+
+      <!-- Puzzle pieces assembling as auth completes -->
+      <div class="mt-5 flex items-center gap-2" aria-hidden="true">
+        <svg class="gate-pz h-5 w-5" data-i="0" style="--gx:-24px;--gy:-16px" viewBox="0 0 24 24" fill="none" stroke="#4FC3F7" stroke-width="1.5"><use href="#pzPath"/></svg>
+        <svg class="gate-pz h-5 w-5" data-i="1" style="--gx:20px;--gy:-18px" viewBox="0 0 24 24" fill="none" stroke="#4FC3F7" stroke-width="1.5"><use href="#pzPath"/></svg>
+        <svg class="gate-pz h-5 w-5" data-i="2" style="--gx:-18px;--gy:22px" viewBox="0 0 24 24" fill="none" stroke="#4FC3F7" stroke-width="1.5"><use href="#pzPath"/></svg>
+        <svg class="gate-pz h-5 w-5" data-i="3" style="--gx:26px;--gy:14px" viewBox="0 0 24 24" fill="none" stroke="#4FC3F7" stroke-width="1.5"><use href="#pzPath"/></svg>
+        <svg class="gate-pz h-5 w-5" data-i="4" style="--gx:0px;--gy:-26px" viewBox="0 0 24 24" fill="none" stroke="#4FC3F7" stroke-width="1.5"><use href="#pzPath"/></svg>
+      </div>
+    </div>
+
+    <!-- Skip -->
+    <div class="flex items-center justify-between border-t border-line px-4 py-2.5">
+      <span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Press enter to continue</span>
+      <button id="gateSkip" type="button" class="border border-line px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-body transition-colors hover:border-accent hover:text-accent">Skip intro</button>
+    </div>
+  </div>
+</div>
 
 <!-- Reusable puzzle path (Lucide 'puzzle') -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -256,6 +341,7 @@ tailwind.config = {
 <!-- ============================================================ -->
 <section class="relative flex min-h-[92svh] flex-col items-center justify-center overflow-hidden px-5 pt-24 pb-20 text-center">
   <div class="grid-bg absolute inset-0" aria-hidden="true"></div>
+
 
   <!-- Drifting puzzle field -->
   <div id="pzField" class="absolute inset-0 z-[1]" aria-hidden="true">
@@ -1144,12 +1230,36 @@ tailwind.config = {
     <div class="overflow-y-auto px-6 py-6 text-sm leading-relaxed text-body">
       <p class="font-mono text-xs uppercase tracking-[0.16em] text-faint">Incident</p>
       <p class="mt-2">Customers reported a "destination port unreachable" error when attempting to visit a website. Packet sniffing tests were conducted in Wireshark to investigate. Note: IP addresses and the domain in the working log are anonymised stand-ins so nothing traces back to a real environment.</p>
-      <div class="mt-4 border border-linesoft bg-bg p-4 font-mono text-xs leading-relaxed text-body">
-        <p class="text-faint">// Pattern repeating across the capture</p>
-        <p class="mt-2">13:24:32 · UDP DNS A? query from the client to the DNS server (port 53)</p>
-        <p>13:24:36 · ICMP reply: udp port 53 unreachable</p>
-        <p class="mt-1 text-faint">// Same request retried at 13:26 and 13:28, same ICMP error each time</p>
+
+      <p class="mt-5 font-mono text-xs uppercase tracking-[0.16em] text-faint">The captured log</p>
+      <div class="mt-2 overflow-x-auto border border-linesoft bg-bg p-4 font-mono text-xs leading-relaxed text-body">
+<pre class="whitespace-pre">13:24:32.192571 IP 198.51.100.23.52444 &gt; 192.0.2.44.domain: 35084+ A?
+facebook-connect.net. (21)
+13:24:36.098564 IP 192.0.2.44 &gt; 198.51.100.23: ICMP 192.0.2.44
+udp port 53 unreachable length 254
+
+13:26:32.192571 IP 198.51.100.23.52444 &gt; 192.0.2.44.domain: 35084+ A?
+facebook-connect.net. (21)
+13:27:15.934126 IP 192.0.2.44 &gt; 198.51.100.23: ICMP 192.0.2.44
+udp port 53 unreachable length 320
+
+13:28:32.192571 IP 198.51.100.23.52444 &gt; 192.0.2.44.domain: 35084+ A?
+facebook-connect.net. (21)
+13:28:50.022967 IP 192.0.2.44 &gt; 198.51.100.23: ICMP 192.0.2.44
+udp port 53 unreachable length 150</pre>
       </div>
+
+      <p class="mt-5 font-mono text-xs uppercase tracking-[0.16em] text-faint">Reading the log</p>
+      <ol class="mt-2 list-decimal space-y-2 pl-5">
+        <li>The first two lines show the computer sending a request to the DNS server, asking for the IP address of the domain. This request travels as a UDP packet.</li>
+        <li>The next two lines show the reply. The line starting with "ICMP 192.0.2.44" is the beginning of an error message: the UDP packet never made it to port 53 on the DNS server.</li>
+        <li>Each line starts with a timestamp. The first, 13:24:32.192571, means 1:24 p.m. and 32.192571 seconds.</li>
+        <li>After the timestamp come the source and destination IP addresses. The address left of the &gt; symbol is where the packet came from (the analyst's machine, 198.51.100.23) and the address right of it is where it was headed (the DNS server, 192.0.2.44). For the ICMP error reply this is reversed, since the error is being sent back.</li>
+        <li>Then comes the detail: 35084 is a query ID, a label matching the request with its reply. The plus sign means flags are attached, and "A?" marks a request for an A record, the DNS record type that maps a domain name to an IP address. "ICMP" on the reply lines marks an error message rather than a normal DNS response.</li>
+        <li>The final part, "udp port 53 unreachable", is the key finding. Port 53 is the port used for DNS, and "unreachable" means nothing was listening there to answer.</li>
+        <li>The rest of the log shows the same request retried twice more, hitting the identical error each time.</li>
+      </ol>
+
       <p class="mt-5 font-mono text-xs uppercase tracking-[0.16em] text-faint">Analysis</p>
       <p class="mt-2">The UDP protocol carried the DNS query to resolve the domain, and ICMP carried the error response back. Because port 53 is the port associated with DNS, the repeated "udp port 53 unreachable" errors isolate the fault to the DNS service itself: the request never reached a working DNS listener. The A? flag on each query confirms the client was performing standard A-record resolution when the failures occurred.</p>
       <p class="mt-5 font-mono text-xs uppercase tracking-[0.16em] text-faint">Conclusion and next steps</p>
@@ -1237,6 +1347,79 @@ tailwind.config = {
     });
   }, { threshold: 0.4 });
   counts.forEach(c => countObs.observe(c));
+
+  // ----- Access terminal intro -----
+  (function gateIntro() {
+    const gate = document.getElementById('gate');
+    if (!gate) return;
+    const uEl = document.getElementById('gUser');
+    const pEl = document.getElementById('gPass');
+    const uCaret = document.getElementById('gUserCaret');
+    const pCaret = document.getElementById('gPassCaret');
+    const dots = document.getElementById('gDots');
+    const status = document.getElementById('gStatus');
+    const pieces = gate.querySelectorAll('.gate-pz');
+    const timers = [];
+    let finished = false;
+
+    function unlock() {
+      if (finished) return;
+      finished = true;
+      timers.forEach(clearTimeout);
+      gate.classList.add('done');
+      document.body.classList.remove('gated');
+      setTimeout(function () { if (gate.parentNode) gate.remove(); }, 700);
+    }
+    function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
+
+    document.getElementById('gateSkip').addEventListener('click', unlock);
+    document.addEventListener('keydown', function (e) {
+      if (!finished && (e.key === 'Enter' || e.key === 'Escape')) unlock();
+    });
+
+    // No animation for reduced motion, and never trap anyone who arrives at an anchor
+    if (reduceMotion || window.location.hash) { unlock(); return; }
+
+    // Loading dots
+    let d = 0;
+    const dotTimer = setInterval(function () {
+      d = (d + 1) % 4;
+      dots.textContent = '.'.repeat(d);
+      if (finished) clearInterval(dotTimer);
+    }, 320);
+
+    function type(el, text, speed, done) {
+      let i = 0;
+      (function step() {
+        if (finished) return;
+        el.textContent = text.slice(0, ++i);
+        if (i < text.length) later(step, speed);
+        else if (done) later(done, 320);
+      })();
+    }
+
+    later(function () {
+      type(uEl, 'ugonna.ezenekwe', 70, function () {
+        uCaret.style.display = 'none';
+        pCaret.style.display = 'inline-block';
+        type(pEl, '••••••••••••', 60, function () {
+          pCaret.style.display = 'none';
+          clearInterval(dotTimer);
+          dots.textContent = ' ok';
+          status.innerHTML = '<p class="text-body">authenticating<span class="caret"></span></p>';
+          later(function () {
+            status.innerHTML =
+              '<p class="granted text-lg uppercase tracking-[0.22em] text-accent" style="text-shadow:0 0 18px rgba(79,195,247,.6)">Access granted</p>' +
+              '<p class="mt-1.5 text-xs uppercase tracking-[0.14em] text-faint">loading portfolio</p>';
+            pieces.forEach(function (p, i) {
+              later(function () { p.classList.add('in'); }, i * 110);
+            });
+            later(unlock, 1250);
+          }, 900);
+        });
+      });
+    }, 700);
+  })();
 
   // ----- Copy email address -----
   const copyBtn = document.getElementById('copyEmail');
