@@ -63,6 +63,58 @@ tailwind.config = {
   }
   html { background: #060B16; }
   body { line-height: 1.618; }
+
+  /* ============================================================
+     UNIVERSAL SCALING
+     Every size in this file is expressed in rem and derived from
+     phi, so scaling the root font size rescales the entire design
+     proportionally. Small phones step down, large monitors and
+     televisions step up, and the golden ratio relationships hold
+     at every size.
+     ============================================================ */
+  html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+  @media (max-width: 380px)  { html { font-size: 14.5px; } }
+  @media (min-width: 1600px) { html { font-size: 17px; } }
+  @media (min-width: 1920px) { html { font-size: 18.5px; } }
+  @media (min-width: 2400px) { html { font-size: 21px; } }
+  @media (min-width: 3000px) { html { font-size: 24px; } }
+  @media (min-width: 3800px) { html { font-size: 29px; } }
+
+  /* Fixed side rail: icons only when the margin is tight, labels when there is
+     genuine room, always positioned clear of the content shell */
+  #pzProgress .pp-label { display: none; }
+  @media (min-width: 1366px) {
+    #pzProgress { left: max(1rem, calc((100vw - min(72rem, 94vw)) / 2 - 3.6rem)); }
+  }
+  @media (min-width: 1800px) {
+    #pzProgress .pp-label { display: inline; }
+    #pzProgress { left: max(1.5rem, calc((100vw - min(72rem, 94vw)) / 2 - 11.5rem)); }
+  }
+
+  /* Content shell: never wider than the golden container, never
+     wider than the viewport, comfortable gutters on every device */
+  .shell {
+    width: 100%;
+    margin-inline: auto;
+    max-width: min(72rem, 94vw);
+  }
+
+  /* Short viewports (landscape phones, small laptops in split view):
+     let the hero collapse to its content instead of forcing a tall screen */
+  @media (max-height: 620px) {
+    .hero-sec { min-height: auto !important; padding-top: 5.5rem !important; padding-bottom: 3rem !important; }
+    .hero-sec .stat-strip { position: static !important; }
+  }
+
+  /* Very wide screens: stop line lengths running away */
+  @media (min-width: 2400px) { :root { --read: 40rem; } }
+
+  /* Printing and PDF export: content only */
+  @media print {
+    #gate, #pzProgress, #pzGlobal, header, .scanline, .modal { display: none !important; }
+    body { background: #fff !important; color: #000 !important; }
+    .reveal, .reveal-loop, .tcard, .lock-in { opacity: 1 !important; transform: none !important; }
+  }
   ::selection { background: #4FC3F7; color: #060B16; }
 
   /* Fine wireframe grid backdrop for the hero */
@@ -171,7 +223,7 @@ tailwind.config = {
   #gate {
     position: fixed; inset: 0; z-index: 200;
     display: flex; align-items: center; justify-content: center;
-    background: #060B16; padding: 1.25rem;
+    background: #060B16; padding: 1.25rem; overflow-y: auto;
     transition: opacity .35s ease, visibility .35s ease;
   }
   #gate.done { opacity: 0; visibility: hidden; }
@@ -204,6 +256,7 @@ tailwind.config = {
 
   /* ---------- Certificate carousel ---------- */
   .cert-track {
+    max-width: 100%;
     display: flex;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
@@ -224,7 +277,7 @@ tailwind.config = {
       #060B16;
   }
   .cert-slide img {
-    max-height: 200px;
+    max-height: 12.5rem;
     width: auto;
     max-width: 100%;
     border: 1px solid #1C2B47;
@@ -232,10 +285,12 @@ tailwind.config = {
     transition: filter .4s ease, border-color .4s ease;
   }
   .cert-slide img:hover, .cert-slide img:focus { filter: none; border-color: #4FC3F7; }
-  @media (min-width: 768px) { .cert-slide img { max-height: 300px; } }
+  @media (min-width: 768px) { .cert-slide img { max-height: 18rem; } }
+  @media (min-width: 1920px) { .cert-slide img { max-height: 22rem; } }
   .cert-dot { transition: width .3s ease, background-color .3s ease; }
   .cert-dot.active { width: 1.618rem; background-color: #4FC3F7; }
-  @media (prefers-reduced-motion: reduce) { .cert-track { scroll-behavior: auto; } }
+  @media (prefers-reduced-motion: reduce) { .cert-track {
+    max-width: 100%; scroll-behavior: auto; } }
 
   /* Scroll reveal */
   .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
@@ -339,20 +394,20 @@ tailwind.config = {
 <!-- HEADER -->
 <!-- ============================================================ -->
 <header class="fixed inset-x-0 top-0 z-50 border-b border-line bg-bg/85 backdrop-blur-xl">
-  <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 md:px-8">
+  <div class="shell flex h-16 items-center justify-between">
     <a href="#top" class="flex items-baseline gap-3">
       <span class="font-display text-base font-bold tracking-tight">Ugonna Ezenekwe<span class="text-accent">.</span></span>
       <span class="hidden font-mono text-xs uppercase tracking-[0.18em] text-faint sm:inline">[GRC &amp; RISK ANALYST]</span>
     </a>
-    <nav class="hidden items-center md:flex" aria-label="Primary">
-      <a href="Ugonna_Ezenekwe_CV.pdf" target="_blank" rel="noopener" class="rounded-none border border-line px-4 py-1.5 text-sm text-white transition-colors hover:border-accent hover:text-accent">CV (PDF)</a>
-    </nav>
-    <button id="menuBtn" type="button" class="flex h-10 w-10 items-center justify-center md:hidden" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
-      <i data-lucide="menu" class="h-5 w-5"></i>
-    </button>
+    <div class="flex items-center gap-2 sm:gap-3">
+      <a href="Ugonna_Ezenekwe_CV.pdf" target="_blank" rel="noopener" class="rounded-none border border-line px-3 py-1.5 text-sm text-white transition-colors hover:border-accent hover:text-accent sm:px-4">CV (PDF)</a>
+      <button id="menuBtn" type="button" class="flex h-11 w-11 items-center justify-center xl:hidden" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
+        <i data-lucide="menu" class="h-5 w-5"></i>
+      </button>
+    </div>
   </div>
-  <div id="mobileMenu" class="hidden border-t border-line bg-bg md:hidden">
-    <nav class="flex flex-col px-5 py-4" aria-label="Mobile">
+  <div id="mobileMenu" class="hidden border-t border-line bg-bg xl:hidden">
+    <nav class="shell flex flex-col py-4" aria-label="Mobile">
       <a href="#background" class="border-b border-linesoft py-3 text-sm text-body">Background</a>
       <a href="#audits" class="border-b border-linesoft py-3 text-sm text-body">Audits</a>
       <a href="#journal" class="border-b border-linesoft py-3 text-sm text-body">Journal</a>
@@ -365,7 +420,7 @@ tailwind.config = {
 </header>
 
 <!-- Fixed scroll progress: clickable pieces with tab labels, lock in as sections are completed -->
-<nav id="pzProgress" class="fixed bottom-6 left-6 z-40 hidden flex-col items-start gap-3.5 xl:flex" aria-label="Section progress">
+<nav id="pzProgress" class="fixed bottom-6 left-6 z-40 hidden flex-col items-start gap-3.5 min-[1366px]:flex" aria-label="Section progress">
   <a href="#background" class="pp-link group flex items-center gap-2" data-sec="background">
     <svg class="pp h-7 w-7 shrink-0" viewBox="0 0 24 24" fill="none" stroke="#2A4067" stroke-width="1.5"><use href="#pzPath"/></svg>
     <span class="pp-label font-mono text-xs uppercase tracking-[0.16em] text-faint transition-colors group-hover:text-white">Background</span>
@@ -397,7 +452,7 @@ tailwind.config = {
 <!-- ============================================================ -->
 <!-- HERO -->
 <!-- ============================================================ -->
-<section class="relative flex min-h-[92svh] flex-col items-center justify-center overflow-hidden px-5 pt-24 pb-20 text-center">
+<section class="hero-sec relative flex min-h-[92svh] flex-col items-center justify-center overflow-hidden px-4 pt-24 pb-20 text-center">
   <div class="grid-bg absolute inset-0" aria-hidden="true"></div>
 
 
@@ -427,7 +482,7 @@ tailwind.config = {
        class="pointer-events-none absolute bottom-0 right-0 z-[1] hidden h-[85%] w-auto object-contain opacity-[0.22] md:block"
        style="mask-image: linear-gradient(to left, black 55%, transparent 100%); -webkit-mask-image: linear-gradient(to left, black 55%, transparent 100%); mix-blend-mode: screen;">
 
-  <div class="relative z-10 mx-auto max-w-4xl">
+  <div class="shell relative z-10">
     <p class="flex items-center justify-center gap-2.5 font-mono text-xs uppercase tracking-[0.22em] text-accent md:text-xs"><i data-lucide="lock" class="h-3.5 w-3.5"></i> Secure // Analyse // Comply</p>
 
     <!-- Name with puzzle burst on hover / tap -->
@@ -456,8 +511,8 @@ tailwind.config = {
   </div>
 
   <!-- Live-feeling stat strip -->
-  <div class="absolute bottom-0 left-0 right-0 z-10 border-t border-line bg-bg/85 backdrop-blur">
-    <div class="mx-auto grid max-w-6xl grid-cols-2 divide-x divide-line md:grid-cols-4">
+  <div class="stat-strip absolute bottom-0 left-0 right-0 z-10 mt-[var(--phi2)] border-t border-line bg-bg/85 backdrop-blur">
+    <div class="shell grid grid-cols-2 divide-x divide-line md:grid-cols-4">
       <div class="px-4 py-4 text-center md:py-5">
         <p class="font-display text-[1.618rem] font-bold text-white md:text-[2.058rem]"><span class="count" data-count="2">0</span></p>
         <p class="mt-1 font-mono text-[10px] uppercase tracking-[0.16em] text-faint md:text-xs">Security Audits</p>
@@ -484,7 +539,7 @@ tailwind.config = {
 <!-- ============================================================ -->
 <!-- ABOUT / PROFILE -->
 <!-- ============================================================ -->
-<section id="about" class="mx-auto max-w-6xl scroll-mt-24 px-5 pt-[var(--phi3)] md:px-8 md:pt-[var(--phi5)]">
+<section id="about" class="shell scroll-mt-24 px-0 pt-[var(--phi3)] md:pt-[var(--phi5)]">
   <div class="reveal grid grid-cols-1 border border-line md:grid-cols-[1fr_1.618fr]">
     <div class="border-b border-line p-[var(--phi1)] md:border-b-0 md:border-r">
       <p class="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-accent">
@@ -513,7 +568,7 @@ tailwind.config = {
   </div>
 </div>
 
-<section id="background" class="mx-auto max-w-6xl scroll-mt-24 px-5 py-[var(--phi3)] md:px-8 md:py-[var(--phi5)]">
+<section id="background" class="shell scroll-mt-24 px-0 py-[var(--phi3)] md:py-[var(--phi5)]">
   <div class="reveal">
     <p class="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-accent">
       <svg class="lock-in h-4 w-4" style="--fx:20px; --fy:30px" viewBox="0 0 24 24" fill="none" stroke="#4FC3F7" stroke-width="1.6"><use href="#pzPath"/></svg>
@@ -592,7 +647,7 @@ tailwind.config = {
   </div>
 </div>
 
-<section id="audits" class="mx-auto max-w-6xl scroll-mt-24 px-5 py-[var(--phi3)] md:px-8 md:py-[var(--phi5)]">
+<section id="audits" class="shell scroll-mt-24 px-0 py-[var(--phi3)] md:py-[var(--phi5)]">
   <div class="reveal flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
     <div>
       <p class="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-accent">
@@ -748,7 +803,7 @@ tailwind.config = {
   </div>
 </div>
 
-<section id="journal" class="mx-auto max-w-6xl scroll-mt-24 px-5 py-[var(--phi3)] md:px-8 md:py-[var(--phi5)]">
+<section id="journal" class="shell scroll-mt-24 px-0 py-[var(--phi3)] md:py-[var(--phi5)]">
   <div class="reveal">
     <p class="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-accent">
       <svg class="lock-in h-4 w-4" style="--fx:30px; --fy:-20px" viewBox="0 0 24 24" fill="none" stroke="#4FC3F7" stroke-width="1.6"><use href="#pzPath"/></svg>
@@ -885,7 +940,7 @@ tailwind.config = {
 <!-- ============================================================ -->
 <!-- SOC MONITOR (simulated, animated) -->
 <!-- ============================================================ -->
-<section id="monitor" class="mx-auto max-w-6xl scroll-mt-24 px-5 py-[var(--phi3)] md:px-8 md:py-[var(--phi5)]">
+<section id="monitor" class="shell scroll-mt-24 px-0 py-[var(--phi3)] md:py-[var(--phi5)]">
   <div class="reveal">
     <p class="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-accent">
       <svg class="lock-in h-4 w-4" style="--fx:24px; --fy:-22px" viewBox="0 0 24 24" fill="none" stroke="#4FC3F7" stroke-width="1.6"><use href="#pzPath"/></svg>
@@ -985,46 +1040,46 @@ tailwind.config = {
       </div>
       <div class="space-y-3 bg-elev p-[var(--phi0)]">
         <div class="flex items-center gap-3">
-          <span class="w-24 shrink-0 font-mono text-[10px] uppercase tracking-[0.12em] text-[#EF476F]">Critical</span>
+          <span class="w-[4.6rem] shrink-0 font-mono sm:w-24 text-[10px] uppercase tracking-[0.12em] text-[#EF476F]">Critical</span>
           <div class="h-2.5 flex-1 overflow-hidden bg-[#142138]">
             <div class="bar-fill bar-glow h-full" data-bar="critical" style="width:8%; background:linear-gradient(90deg,#EF476F,#FF7A9C); box-shadow:0 0 10px rgba(239,71,111,.6)"></div>
           </div>
-          <span class="w-10 shrink-0 text-right font-mono text-xs text-body" data-bar-pct="critical">8%</span>
+          <span class="w-[2.6rem] shrink-0 text-right font-mono text-xs text-body" data-bar-pct="critical">8%</span>
         </div>
         <div class="flex items-center gap-3">
-          <span class="w-24 shrink-0 font-mono text-[10px] uppercase tracking-[0.12em] text-[#F2784B]">High</span>
+          <span class="w-[4.6rem] shrink-0 font-mono sm:w-24 text-[10px] uppercase tracking-[0.12em] text-[#F2784B]">High</span>
           <div class="h-2.5 flex-1 overflow-hidden bg-[#142138]">
             <div class="bar-fill bar-glow h-full" data-bar="high" style="width:18%; background:linear-gradient(90deg,#F2784B,#FFB07A); box-shadow:0 0 10px rgba(242,120,75,.55); animation-delay:.4s"></div>
           </div>
-          <span class="w-10 shrink-0 text-right font-mono text-xs text-body" data-bar-pct="high">18%</span>
+          <span class="w-[2.6rem] shrink-0 text-right font-mono text-xs text-body" data-bar-pct="high">18%</span>
         </div>
         <div class="flex items-center gap-3">
-          <span class="w-24 shrink-0 font-mono text-[10px] uppercase tracking-[0.12em] text-[#E2C044]">Medium</span>
+          <span class="w-[4.6rem] shrink-0 font-mono sm:w-24 text-[10px] uppercase tracking-[0.12em] text-[#E2C044]">Medium</span>
           <div class="h-2.5 flex-1 overflow-hidden bg-[#142138]">
             <div class="bar-fill bar-glow h-full" data-bar="medium" style="width:34%; background:linear-gradient(90deg,#E2C044,#F5DD8A); box-shadow:0 0 10px rgba(226,192,68,.5); animation-delay:.8s"></div>
           </div>
-          <span class="w-10 shrink-0 text-right font-mono text-xs text-body" data-bar-pct="medium">34%</span>
+          <span class="w-[2.6rem] shrink-0 text-right font-mono text-xs text-body" data-bar-pct="medium">34%</span>
         </div>
         <div class="flex items-center gap-3">
-          <span class="w-24 shrink-0 font-mono text-[10px] uppercase tracking-[0.12em] text-accent">Low</span>
+          <span class="w-[4.6rem] shrink-0 font-mono sm:w-24 text-[10px] uppercase tracking-[0.12em] text-accent">Low</span>
           <div class="h-2.5 flex-1 overflow-hidden bg-[#142138]">
             <div class="bar-fill bar-glow h-full" data-bar="low" style="width:26%; background:linear-gradient(90deg,#4FC3F7,#7FD4F5); box-shadow:0 0 10px rgba(79,195,247,.55); animation-delay:1.2s"></div>
           </div>
-          <span class="w-10 shrink-0 text-right font-mono text-xs text-body" data-bar-pct="low">26%</span>
+          <span class="w-[2.6rem] shrink-0 text-right font-mono text-xs text-body" data-bar-pct="low">26%</span>
         </div>
         <div class="flex items-center gap-3">
-          <span class="w-24 shrink-0 font-mono text-[10px] uppercase tracking-[0.12em] text-[#3DDC97]">Safe / Info</span>
+          <span class="w-[4.6rem] shrink-0 font-mono sm:w-24 text-[10px] uppercase tracking-[0.12em] text-[#3DDC97]">Safe / Info</span>
           <div class="h-2.5 flex-1 overflow-hidden bg-[#142138]">
             <div class="bar-fill bar-glow h-full" data-bar="safe" style="width:14%; background:linear-gradient(90deg,#3DDC97,#8AF0C6); box-shadow:0 0 10px rgba(61,220,151,.55); animation-delay:1.6s"></div>
           </div>
-          <span class="w-10 shrink-0 text-right font-mono text-xs text-body" data-bar-pct="safe">14%</span>
+          <span class="w-[2.6rem] shrink-0 text-right font-mono text-xs text-body" data-bar-pct="safe">14%</span>
         </div>
       </div>
     </div>
 
     <!-- Feed -->
     <div class="px-5 py-2">
-      <div class="grid grid-cols-[64px_1fr_86px] gap-3 border-b border-linesoft py-2 font-mono text-[10px] uppercase tracking-[0.14em] text-faint sm:grid-cols-[70px_1fr_90px_90px]">
+      <div class="grid grid-cols-[3.2rem_1fr_4.6rem] gap-2 border-b border-linesoft py-2 font-mono text-[10px] uppercase tracking-[0.14em] text-faint sm:grid-cols-[70px_1fr_90px_90px]">
         <span>Time</span><span>Title</span><span>Urgency</span><span class="hidden sm:inline">Status</span>
       </div>
       <div id="socFeed"></div>
@@ -1048,7 +1103,7 @@ tailwind.config = {
   </div>
 </div>
 
-<section id="frameworks" class="mx-auto max-w-6xl scroll-mt-24 px-5 py-[var(--phi3)] md:px-8 md:py-[var(--phi5)]">
+<section id="frameworks" class="shell scroll-mt-24 px-0 py-[var(--phi3)] md:py-[var(--phi5)]">
   <div class="reveal">
     <p class="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-accent">
       <svg class="lock-in h-4 w-4" style="--fx:-20px; --fy:30px" viewBox="0 0 24 24" fill="none" stroke="#4FC3F7" stroke-width="1.6"><use href="#pzPath"/></svg>
@@ -1133,7 +1188,7 @@ tailwind.config = {
 <!-- ============================================================ -->
 <!-- CERTIFICATIONS CAROUSEL -->
 <!-- ============================================================ -->
-<section id="certificates" class="mx-auto max-w-6xl scroll-mt-24 px-5 py-[var(--phi3)] md:px-8 md:py-[var(--phi5)]">
+<section id="certificates" class="shell scroll-mt-24 px-0 py-[var(--phi3)] md:py-[var(--phi5)]">
   <div class="reveal flex flex-col gap-[var(--phi0)] md:flex-row md:items-end md:justify-between">
     <div>
       <p class="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-accent">
@@ -1186,9 +1241,9 @@ tailwind.config = {
     <!-- Dots and verify links -->
     <div class="flex flex-wrap items-center justify-between gap-[var(--phi0)] border-t border-line px-[var(--phi1)] py-3">
       <div id="certDots" class="flex items-center gap-1.5">
-        <button type="button" class="cert-dot active h-1.5 w-1.5 rounded-full bg-[#2A4067]" data-go="0" aria-label="Go to certificate 1"></button>
-        <button type="button" class="cert-dot h-1.5 w-1.5 rounded-full bg-[#2A4067]" data-go="1" aria-label="Go to certificate 2"></button>
-        <button type="button" class="cert-dot h-1.5 w-1.5 rounded-full bg-[#2A4067]" data-go="2" aria-label="Go to certificate 3"></button>
+        <button type="button" class="cert-dot active h-1.5 w-1.5 rounded-full bg-[#2A4067] ring-8 ring-transparent" data-go="0" aria-label="Go to certificate 1"></button>
+        <button type="button" class="cert-dot h-1.5 w-1.5 rounded-full bg-[#2A4067] ring-8 ring-transparent" data-go="1" aria-label="Go to certificate 2"></button>
+        <button type="button" class="cert-dot h-1.5 w-1.5 rounded-full bg-[#2A4067] ring-8 ring-transparent" data-go="2" aria-label="Go to certificate 3"></button>
       </div>
       <div class="flex flex-wrap items-center gap-[var(--phi0)] font-mono text-xs uppercase tracking-[0.12em]">
         <span class="text-faint">Hover to brighten · Verify:</span>
@@ -1201,7 +1256,7 @@ tailwind.config = {
 </section>
 
 <footer class="border-t border-line">
-  <div class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-5 py-8 md:flex-row md:px-8">
+  <div class="shell flex flex-col items-center justify-between gap-3 py-8 md:flex-row">
     <p class="font-mono text-xs uppercase tracking-[0.16em] text-faint">© 2026 Ugonna Ezenekwe · London, UK</p>
     <p class="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.16em] text-faint">
       <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="#4FC3F7" stroke-width="1.6"><use href="#pzPath"/></svg>
@@ -1215,8 +1270,8 @@ tailwind.config = {
 <!-- ============================================================ -->
 
 <!-- Botium report -->
-<div id="mBotium" class="modal fixed inset-0 z-[100] items-end justify-center bg-black/70 p-0 backdrop-blur-sm md:items-center md:p-8" role="dialog" aria-modal="true" aria-labelledby="mBotiumTitle">
-  <div class="modal-panel relative flex max-h-[92svh] w-full max-w-[var(--read)] flex-col border border-line bg-elev">
+<div id="mBotium" class="modal fixed inset-0 z-[100] items-end justify-center bg-black/70 p-0 backdrop-blur-sm md:items-center md:p-[var(--phi1)]" role="dialog" aria-modal="true" aria-labelledby="mBotiumTitle">
+  <div class="modal-panel relative flex max-h-[92svh] w-full max-w-[min(var(--read),94vw)] flex-col border border-line bg-elev">
     <div class="flex items-center justify-between border-b border-line px-6 py-4">
       <div>
         <p class="font-mono text-xs uppercase tracking-[0.16em] text-accent">[ Audit Report · May 2026 ]</p>
@@ -1266,8 +1321,8 @@ tailwind.config = {
 </div>
 
 <!-- NIST CSF report -->
-<div id="mNist" class="modal fixed inset-0 z-[100] items-end justify-center bg-black/70 p-0 backdrop-blur-sm md:items-center md:p-8" role="dialog" aria-modal="true" aria-labelledby="mNistTitle">
-  <div class="modal-panel relative flex max-h-[92svh] w-full max-w-[var(--read)] flex-col border border-line bg-elev">
+<div id="mNist" class="modal fixed inset-0 z-[100] items-end justify-center bg-black/70 p-0 backdrop-blur-sm md:items-center md:p-[var(--phi1)]" role="dialog" aria-modal="true" aria-labelledby="mNistTitle">
+  <div class="modal-panel relative flex max-h-[92svh] w-full max-w-[min(var(--read),94vw)] flex-col border border-line bg-elev">
     <div class="flex items-center justify-between border-b border-line px-6 py-4">
       <div>
         <p class="font-mono text-xs uppercase tracking-[0.16em] text-accent">[ Incident Report · July 2026 ]</p>
@@ -1308,8 +1363,8 @@ tailwind.config = {
 </div>
 
 <!-- Brute force report -->
-<div id="mBrute" class="modal fixed inset-0 z-[100] items-end justify-center bg-black/70 p-0 backdrop-blur-sm md:items-center md:p-8" role="dialog" aria-modal="true" aria-labelledby="mBruteTitle">
-  <div class="modal-panel relative flex max-h-[92svh] w-full max-w-[var(--read)] flex-col border border-line bg-elev">
+<div id="mBrute" class="modal fixed inset-0 z-[100] items-end justify-center bg-black/70 p-0 backdrop-blur-sm md:items-center md:p-[var(--phi1)]" role="dialog" aria-modal="true" aria-labelledby="mBruteTitle">
+  <div class="modal-panel relative flex max-h-[92svh] w-full max-w-[min(var(--read),94vw)] flex-col border border-line bg-elev">
     <div class="flex items-center justify-between border-b border-line px-6 py-4">
       <div>
         <p class="font-mono text-xs uppercase tracking-[0.16em] text-accent">[ Incident Report · July 2026 ]</p>
@@ -1344,8 +1399,8 @@ tailwind.config = {
 </div>
 
 <!-- Wireshark report -->
-<div id="mShark" class="modal fixed inset-0 z-[100] items-end justify-center bg-black/70 p-0 backdrop-blur-sm md:items-center md:p-8" role="dialog" aria-modal="true" aria-labelledby="mSharkTitle">
-  <div class="modal-panel relative flex max-h-[92svh] w-full max-w-[var(--read)] flex-col border border-line bg-elev">
+<div id="mShark" class="modal fixed inset-0 z-[100] items-end justify-center bg-black/70 p-0 backdrop-blur-sm md:items-center md:p-[var(--phi1)]" role="dialog" aria-modal="true" aria-labelledby="mSharkTitle">
+  <div class="modal-panel relative flex max-h-[92svh] w-full max-w-[min(var(--read),94vw)] flex-col border border-line bg-elev">
     <div class="flex items-center justify-between border-b border-line px-6 py-4">
       <div>
         <p class="font-mono text-xs uppercase tracking-[0.16em] text-accent">[ Incident Report · July 2026 ]</p>
@@ -1768,7 +1823,7 @@ udp port 53 unreachable length 150</pre>
       const t = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
       const status = STATUSES[Math.floor(Math.random() * STATUSES.length)];
       const row = document.createElement('div');
-      row.className = 'grid grid-cols-[64px_1fr_86px] gap-3 border-b border-linesoft py-2.5 text-xs sm:grid-cols-[70px_1fr_90px_90px]';
+      row.className = 'grid grid-cols-[3.2rem_1fr_4.6rem] gap-2 border-b border-linesoft py-2.5 text-xs sm:grid-cols-[4.4rem_1fr_5.6rem_5.6rem] sm:gap-3';
       if (animate) {
         row.style.animation = sev.name === 'Critical'
           ? 'rowIn 1.2s ease both, critPulse 1.6s ease-in-out 1.2s infinite'
