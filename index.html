@@ -237,6 +237,90 @@ tailwind.config = {
     mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 20%, transparent 75%);
     -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 20%, transparent 75%);
   }
+  /* corner brackets on the directory panel */
+  .net-corner { position: absolute; width: 14px; height: 14px; border: 1px solid #4FC3F7; opacity: .55; pointer-events: none; }
+  .net-tl { top: 8px;    left: 8px;   border-right: 0; border-bottom: 0; }
+  .net-tr { top: 8px;    right: 8px;  border-left: 0;  border-bottom: 0; }
+  .net-bl { bottom: 8px; left: 8px;   border-right: 0; border-top: 0; }
+  .net-br { bottom: 8px; right: 8px;  border-left: 0;  border-top: 0; }
+
+  /* self-driving cursor */
+  #netCursor {
+    position: absolute;
+    width: 22px; height: 22px;
+    left: 0; top: 0;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 6;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,.6));
+    transition: transform 1.15s cubic-bezier(.32,.72,.28,1), opacity .3s ease;
+  }
+  #netCursor.press { transform-origin: 0 0; }
+  @keyframes rippleOut {
+    from { opacity: .85; transform: translate(-50%, -50%) scale(.2); }
+    to   { opacity: 0;   transform: translate(-50%, -50%) scale(1); }
+  }
+  #netRipple {
+    position: absolute;
+    width: 62px; height: 62px;
+    border: 1px solid #4FC3F7;
+    border-radius: 9999px;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 5;
+  }
+  #netRipple.go { animation: rippleOut .55s ease-out forwards; }
+  @media (prefers-reduced-motion: reduce) {
+    #netCursor, #netRipple { display: none !important; }
+  }
+
+  /* falling code behind the terminal */
+  #gateRain {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    opacity: .5;
+    pointer-events: none;
+  }
+  @keyframes markBreathe {
+    0%, 100% { opacity: .06; transform: translate(-50%, -50%) scale(1); }
+    50%      { opacity: .11; transform: translate(-50%, -50%) scale(1.03); }
+  }
+  .gate-mark {
+    position: absolute;
+    left: 50%; top: 50%;
+    width: min(58vmin, 30rem);
+    height: auto;
+    opacity: .06;
+    pointer-events: none;
+    animation: markBreathe 6s ease-in-out infinite;
+    filter: drop-shadow(0 0 30px rgba(79,195,247,.25));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #gateRain { display: none; }
+    .gate-mark { animation: none; }
+  }
+
+  @keyframes gateScan { 0% { top: -10%; } 100% { top: 110%; } }
+  .gate-scan {
+    position: absolute; left: 0; right: 0; height: 28%;
+    background: linear-gradient(to bottom, transparent, rgba(79,195,247,.05), transparent);
+    animation: gateScan 7s linear infinite;
+    pointer-events: none;
+  }
+  .net-row { transition: border-color .25s ease, background-color .25s ease, transform .25s ease; }
+  .net-open { background: rgba(79,195,247,.06); }
+  .net-open:hover, .net-open.focused { background: rgba(79,195,247,.14); transform: translateX(3px); }
+  .net-locked { cursor: not-allowed; opacity: .55; }
+  @keyframes netPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(79,195,247,.35); }
+    50%      { box-shadow: 0 0 0 4px rgba(79,195,247,0); }
+  }
+  .net-open { animation: netPulse 2.2s ease-in-out infinite; }
+  @media (prefers-reduced-motion: reduce) {
+    .gate-scan { display: none; }
+    .net-open { animation: none; }
+  }
+
   @keyframes caret { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
   .caret { display: inline-block; width: 8px; height: 1em; background: #4FC3F7; vertical-align: text-bottom; animation: caret 1s steps(1) infinite; }
   @keyframes granted {
@@ -495,14 +579,17 @@ tailwind.config = {
 <!-- ACCESS TERMINAL INTRO -->
 <!-- ============================================================ -->
 <div id="gate" role="presentation">
+  <canvas id="gateRain" aria-hidden="true"></canvas>
+  <svg class="gate-mark" viewBox="0 0 24 24" fill="none" stroke="#4FC3F7" stroke-width="0.55" aria-hidden="true"><use href="#pzPath"/></svg>
   <div class="gate-grid" aria-hidden="true"></div>
+  <div class="gate-scan" aria-hidden="true"></div>
 
-  <div class="relative w-full max-w-lg border border-line bg-elev">
+  <div class="relative w-full max-w-2xl border border-line bg-elev">
     <!-- Terminal bar -->
     <div class="flex items-center justify-between border-b border-line px-4 py-2.5">
       <span class="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.16em] text-faint">
         <span class="live-dot inline-block h-2 w-2 rounded-full bg-accent"></span>
-        secure-access // portfolio
+        <span id="gateChannel">secure-access // portfolio</span>
       </span>
       <div class="flex gap-1.5" aria-hidden="true">
         <span class="h-2 w-2 rounded-full bg-[#1C2B47]"></span>
@@ -511,8 +598,8 @@ tailwind.config = {
       </div>
     </div>
 
-    <!-- Terminal body -->
-    <div class="px-6 py-7 font-mono text-sm leading-relaxed">
+    <!-- STAGE 1: login -->
+    <div id="gateAuth" class="px-6 py-7 font-mono text-sm leading-relaxed">
       <p class="text-faint">$ connect ugonna-ezenekwe.portfolio</p>
       <p class="mt-1 text-faint">establishing session<span id="gDots"></span></p>
 
@@ -523,7 +610,6 @@ tailwind.config = {
 
       <div id="gStatus" class="mt-6 min-h-[3.5rem]"></div>
 
-      <!-- Puzzle pieces assembling as auth completes -->
       <div class="mt-5 flex items-center gap-2" aria-hidden="true">
         <svg class="gate-pz h-5 w-5" data-i="0" style="--gx:-24px;--gy:-16px" viewBox="0 0 24 24" fill="none" stroke="#4FC3F7" stroke-width="1.5"><use href="#pzPath"/></svg>
         <svg class="gate-pz h-5 w-5" data-i="1" style="--gx:20px;--gy:-18px" viewBox="0 0 24 24" fill="none" stroke="#4FC3F7" stroke-width="1.5"><use href="#pzPath"/></svg>
@@ -533,10 +619,88 @@ tailwind.config = {
       </div>
     </div>
 
+    <!-- STAGE 2: network directory -->
+    <div id="gateNet" class="relative hidden px-6 py-6">
+      <!-- corner brackets -->
+      <span class="net-corner net-tl" aria-hidden="true"></span>
+      <span class="net-corner net-tr" aria-hidden="true"></span>
+      <span class="net-corner net-bl" aria-hidden="true"></span>
+      <span class="net-corner net-br" aria-hidden="true"></span>
+
+      <div class="flex flex-wrap items-start justify-between gap-3 border-b border-linesoft pb-3">
+        <div>
+          <p class="font-display text-lg font-bold uppercase tracking-[0.14em] text-white">Secure Archive</p>
+          <p class="mt-0.5 font-mono text-xs uppercase tracking-[0.16em] text-faint">Analyst network · access by clearance</p>
+        </div>
+        <p class="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-accent">
+          <span class="live-dot inline-block h-1.5 w-1.5 rounded-full bg-accent"></span> Signal secure
+        </p>
+      </div>
+
+      <div class="mt-4 grid gap-4 md:grid-cols-[1.618fr_1fr]">
+        <!-- dossier list -->
+        <ul class="space-y-1.5 font-mono text-sm">
+          <li>
+            <button type="button" class="net-row net-locked flex w-full items-center gap-3 border border-linesoft px-3 py-2.5 text-left" disabled>
+              <span class="text-faint">01</span>
+              <span class="flex-1 truncate text-faint">Field Notes &amp; Sketchbook</span>
+              <span class="shrink-0 text-xs uppercase tracking-[0.14em] text-faint">Locked</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" id="netTarget" class="net-row net-open flex w-full items-center gap-3 border border-accent px-3 py-2.5 text-left">
+              <span class="text-accent">02</span>
+              <span class="flex-1 truncate text-white">Cybersecurity / GRC Portfolio</span>
+              <span class="shrink-0 text-xs uppercase tracking-[0.14em] text-accent">Available</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="net-row net-locked flex w-full items-center gap-3 border border-linesoft px-3 py-2.5 text-left" disabled>
+              <span class="text-faint">03</span>
+              <span class="flex-1 truncate text-faint">Robotics Workshop</span>
+              <span class="shrink-0 text-xs uppercase tracking-[0.14em] text-faint">Locked</span>
+            </button>
+          </li>
+        </ul>
+
+        <!-- operation panel -->
+        <div class="space-y-3 border border-linesoft bg-bg/60 p-3 font-mono text-xs uppercase tracking-[0.12em]">
+          <div>
+            <p class="text-faint">Operation</p>
+            <p class="mt-0.5 text-accent">Security controls audit</p>
+          </div>
+          <div>
+            <p class="text-faint">Location</p>
+            <p class="mt-0.5 text-body">London, United Kingdom</p>
+          </div>
+          <div>
+            <p class="text-faint">Status</p>
+            <p class="mt-0.5 text-body">Open to work</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- decrypt readout -->
+      <div id="netDecrypt" class="mt-4 hidden">
+        <div class="h-1.5 w-full overflow-hidden bg-[#142138]">
+          <div id="netBar" class="h-full w-0 bg-accent" style="box-shadow:0 0 10px rgba(79,195,247,.7); transition: width .25s linear"></div>
+        </div>
+        <p id="netLog" class="mt-2 font-mono text-xs uppercase tracking-[0.14em] text-body"></p>
+      </div>
+
+      <p id="netStatusLine" class="mt-4 border-t border-linesoft pt-3 font-mono text-xs uppercase tracking-[0.16em] text-accent">Status: dossier ready for decryption</p>
+
+      <!-- self-driving cursor -->
+      <svg id="netCursor" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M5 3l14 8.5-6.2 1.3L9.6 19 5 3z" fill="#fff" stroke="#060B16" stroke-width="1.2" stroke-linejoin="round"/>
+      </svg>
+      <span id="netRipple" aria-hidden="true"></span>
+    </div>
+
     <!-- Skip -->
     <div class="flex items-center justify-between border-t border-line px-4 py-2.5">
-      <span class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Press enter to continue</span>
-      <button id="gateSkip" type="button" class="border border-line px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-body transition-colors hover:border-accent hover:text-accent">Skip intro</button>
+      <span class="font-mono text-xs uppercase tracking-[0.14em] text-faint">Encrypted archive</span>
+      <button id="gateSkip" type="button" class="border border-line px-3 py-1.5 font-mono text-xs uppercase tracking-[0.14em] text-body transition-colors hover:border-accent hover:text-accent">Skip intro</button>
     </div>
   </div>
 </div>
@@ -558,6 +722,10 @@ tailwind.config = {
       <span class="hidden font-mono text-xs uppercase tracking-[0.18em] text-faint sm:inline">[GRC &amp; RISK ANALYST]</span>
     </a>
     <div class="flex items-center gap-2 sm:gap-3">
+      <a href="Ugonna_Ezenekwe_CV.pdf" target="_blank" rel="noopener"
+         class="flex items-center gap-2 border border-line px-3 py-1.5 font-mono text-xs uppercase tracking-[0.12em] text-white transition-colors hover:border-accent hover:text-accent sm:px-4">
+        <i data-lucide="download" class="h-3.5 w-3.5"></i><span class="hidden xs:inline sm:inline">Download CV</span><span class="xs:hidden sm:hidden">CV</span>
+      </a>
       <button id="menuBtn" type="button" class="flex h-11 w-11 items-center justify-center xl:hidden" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
         <i data-lucide="menu" class="h-5 w-5"></i>
       </button>
@@ -1686,10 +1854,101 @@ udp port 53 unreachable length 150</pre>
   // One burst on load for first impressions
   window.addEventListener('load', () => setTimeout(triggerBurst, 600));
 
-  // ----- Access terminal intro -----
+  // ----- Falling code behind the access terminal -----
+  (function codeRain() {
+    const cv = document.getElementById('gateRain');
+    if (!cv || reduceMotion) return;
+    const ctx = cv.getContext('2d', { alpha: true });
+    if (!ctx) return;
+
+    // Characters drawn from the work itself: hex, flags, protocols, binary
+    const GLYPHS = ('0123456789ABCDEF' + '01'.repeat(8) +
+      'SYNACKFINRSTICMPUDPTCPDNSGDPRNISTPCIDSSSOCAUDITRISK/\\<>[]{}=+*#').split('');
+
+    let cols = [], size = 14, w = 0, hgt = 0, raf = null, last = 0;
+
+    function resize() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = cv.clientWidth; hgt = cv.clientHeight;
+      cv.width = Math.floor(w * dpr);
+      cv.height = Math.floor(hgt * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      size = w < 640 ? 12 : 14;
+      const n = Math.ceil(w / size);
+      cols = [];
+      for (let i = 0; i < n; i++) {
+        cols.push({
+          y: Math.random() * hgt,
+          speed: 0.45 + Math.random() * 1.1,
+          lead: Math.random() < 0.18   // brighter head column
+        });
+      }
+      ctx.font = size + 'px "IBM Plex Mono", monospace';
+      ctx.textBaseline = 'top';
+    }
+
+    function frame(t) {
+      raf = requestAnimationFrame(frame);
+      if (t - last < 55) return;      // roughly 18fps, plenty for this effect
+      last = t;
+
+      // fade the previous frame instead of clearing, leaving trails
+      ctx.fillStyle = 'rgba(6, 11, 22, 0.16)';
+      ctx.fillRect(0, 0, w, hgt);
+
+      for (let i = 0; i < cols.length; i++) {
+        const c = cols[i];
+        const ch = GLYPHS[(Math.random() * GLYPHS.length) | 0];
+        const x = i * size;
+        // head of the stream is bright, the trail behind it is dim
+        ctx.fillStyle = c.lead ? 'rgba(159, 216, 255, 0.85)' : 'rgba(79, 195, 247, 0.35)';
+        ctx.fillText(ch, x, c.y);
+        c.y += size * c.speed;
+        if (c.y > hgt + size) {
+          c.y = -size * (Math.random() * 8);
+          c.speed = 0.45 + Math.random() * 1.1;
+          c.lead = Math.random() < 0.18;
+        }
+      }
+    }
+
+    function stop() {
+      if (raf) cancelAnimationFrame(raf);
+      raf = null;
+      window.removeEventListener('resize', resize);
+    }
+
+    resize();
+    window.addEventListener('resize', resize);
+    raf = requestAnimationFrame(frame);
+
+    // Stop as soon as the gate is dismissed, so nothing runs behind the site
+    const gate = document.getElementById('gate');
+    if (gate) {
+      const mo = new MutationObserver(function () {
+        if (gate.classList.contains('done') || !gate.parentNode) { stop(); mo.disconnect(); }
+      });
+      mo.observe(gate, { attributes: true, attributeFilter: ['class'] });
+      if (gate.parentNode && gate.parentNode.nodeType) {
+        const parentMo = new MutationObserver(function () {
+          if (!document.getElementById('gate')) { stop(); parentMo.disconnect(); }
+        });
+        parentMo.observe(document.body, { childList: true });
+      }
+    }
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) { if (raf) { cancelAnimationFrame(raf); raf = null; } }
+      else if (!raf && document.getElementById('gate')) { raf = requestAnimationFrame(frame); }
+    });
+  })();
+
+  // ----- Access intro: login, then archive directory -----
   (function gateIntro() {
     const gate = document.getElementById('gate');
     if (!gate) return;
+    const auth = document.getElementById('gateAuth');
+    const net = document.getElementById('gateNet');
+    const channel = document.getElementById('gateChannel');
     const uEl = document.getElementById('gUser');
     const pEl = document.getElementById('gPass');
     const uCaret = document.getElementById('gUserCaret');
@@ -1697,8 +1956,13 @@ udp port 53 unreachable length 150</pre>
     const dots = document.getElementById('gDots');
     const status = document.getElementById('gStatus');
     const pieces = gate.querySelectorAll('.gate-pz');
+    const target = document.getElementById('netTarget');
+    const decrypt = document.getElementById('netDecrypt');
+    const bar = document.getElementById('netBar');
+    const log = document.getElementById('netLog');
     const timers = [];
     let finished = false;
+    let stage = 'auth';
 
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
@@ -1729,9 +1993,44 @@ udp port 53 unreachable length 150</pre>
 
     document.getElementById('gateSkip').addEventListener('click', unlock);
     document.addEventListener('keydown', function (e) {
-      if (!finished && (e.key === 'Enter' || e.key === 'Escape')) unlock();
+      if (finished) return;
+      if (e.key === 'Escape') { unlock(); return; }
+      if (e.key === 'Enter') {
+        if (stage === 'net') { e.preventDefault(); openDossier(); }
+        else unlock();
+      }
     });
 
+    // Stage 3: decrypt the selected dossier, then reveal the portfolio
+    function openDossier() {
+      if (stage !== 'net') return;
+      stage = 'decrypt';
+      target.classList.add('focused');
+      target.disabled = true;
+      decrypt.classList.remove('hidden');
+      channel.textContent = 'decrypting // grc-portfolio';
+      if (document.getElementById('netStatusLine')) document.getElementById('netStatusLine').textContent = 'Status: decrypting archive';
+
+      const steps = [
+        'verifying clearance',
+        'decrypting archive',
+        'assembling the full picture',
+        'ready'
+      ];
+      let i = 0;
+      function step() {
+        if (finished) return;
+        log.textContent = steps[i];
+        bar.style.width = ((i + 1) / steps.length * 100) + '%';
+        i++;
+        if (i < steps.length) later(step, 340);
+        else later(unlock, 520);
+      }
+      step();
+    }
+    target.addEventListener('click', openDossier);
+
+    // Reduced motion, or arriving at a direct link: straight in
     if (reduceMotion || window.location.hash) { unlock(); return; }
 
     let d = 0;
@@ -1743,19 +2042,81 @@ udp port 53 unreachable length 150</pre>
 
     function type(el, text, speed, done) {
       let i = 0;
-      (function step() {
+      (function tick() {
         if (finished) return;
         el.textContent = text.slice(0, ++i);
-        if (i < text.length) later(step, speed);
+        if (i < text.length) later(tick, speed);
         else if (done) later(done, 160);
       })();
+    }
+
+    // Stage 2: swap the login panel for the directory, then let the cursor drive
+    const cursor = document.getElementById('netCursor');
+    const ripple = document.getElementById('netRipple');
+    const statusLine = document.getElementById('netStatusLine');
+
+    function driveCursor() {
+      if (finished || !cursor) return;
+      const box = net.getBoundingClientRect();
+      const row = target.getBoundingClientRect();
+      // start low and to the left, as if the pointer just arrived on screen
+      const startX = box.width * 0.12;
+      const startY = box.height * 0.92;
+      const endX = row.left - box.left + row.width * 0.34;
+      const endY = row.top - box.top + row.height * 0.62;
+
+      cursor.style.transition = 'none';
+      cursor.style.transform = 'translate(' + startX + 'px,' + startY + 'px)';
+      cursor.style.opacity = '0';
+
+      requestAnimationFrame(function () {
+        cursor.style.transition = 'transform 1.15s cubic-bezier(.32,.72,.28,1), opacity .3s ease';
+        cursor.style.opacity = '1';
+        // small hesitation partway, the way a real hand moves
+        later(function () {
+          cursor.style.transform = 'translate(' + (endX - 26) + 'px,' + (endY + 18) + 'px)';
+        }, 60);
+        later(function () {
+          cursor.style.transition = 'transform .42s cubic-bezier(.4,0,.2,1), opacity .3s ease';
+          cursor.style.transform = 'translate(' + endX + 'px,' + endY + 'px)';
+          target.classList.add('focused');
+          if (statusLine) statusLine.textContent = 'Status: dossier selected';
+        }, 1180);
+        // click
+        later(function () {
+          if (finished || stage !== 'net') return;
+          cursor.style.transform = 'translate(' + endX + 'px,' + endY + 'px) scale(.82)';
+          if (ripple) {
+            ripple.style.left = endX + 'px';
+            ripple.style.top = endY + 'px';
+            ripple.classList.remove('go');
+            void ripple.offsetWidth;
+            ripple.classList.add('go');
+          }
+          later(function () {
+            cursor.style.transform = 'translate(' + endX + 'px,' + endY + 'px) scale(1)';
+          }, 130);
+          later(openDossier, 200);
+        }, 1720);
+        later(function () { cursor.style.opacity = '0'; }, 2100);
+      });
+    }
+
+    function showDirectory() {
+      if (finished) return;
+      stage = 'net';
+      auth.classList.add('hidden');
+      net.classList.remove('hidden');
+      channel.textContent = 'archive // directory';
+      target.focus({ preventScroll: true });
+      later(driveCursor, 260);
     }
 
     later(function () {
       type(uEl, 'ugonna.ezenekwe', 38, function () {
         uCaret.style.display = 'none';
         pCaret.style.display = 'inline-block';
-        type(pEl, '••••••••••••', 32, function () {
+        type(pEl, '\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022', 32, function () {
           pCaret.style.display = 'none';
           clearInterval(dotTimer);
           dots.textContent = ' ok';
@@ -1763,11 +2124,11 @@ udp port 53 unreachable length 150</pre>
           later(function () {
             status.innerHTML =
               '<p class="granted text-lg uppercase tracking-[0.22em] text-accent" style="text-shadow:0 0 18px rgba(79,195,247,.6)">Access granted</p>' +
-              '<p class="mt-1.5 text-xs uppercase tracking-[0.14em] text-faint">loading portfolio</p>';
+              '<p class="mt-1.5 text-xs uppercase tracking-[0.14em] text-faint">opening archive</p>';
             pieces.forEach(function (p, i) {
               later(function () { p.classList.add('in'); }, i * 60);
             });
-            later(unlock, 700);
+            later(showDirectory, 780);
           }, 480);
         });
       });
