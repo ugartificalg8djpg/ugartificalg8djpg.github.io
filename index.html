@@ -280,48 +280,11 @@ tailwind.config = {
     mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 20%, transparent 75%);
     -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 20%, transparent 75%);
   }
-  @keyframes rowPress {
-    0%   { transform: translateX(3px) scale(1); }
-    45%  { transform: translateX(3px) scale(.985); background: rgba(79,195,247,.22); }
-    100% { transform: translateX(3px) scale(1); }
-  }
-  .net-open.pressed { animation: rowPress .18s ease-out; }
 
   /* corner brackets on the directory panel */
-  .net-corner { position: absolute; width: 14px; height: 14px; border: 1px solid #4FC3F7; opacity: .55; pointer-events: none; }
-  .net-tl { top: 8px;    left: 8px;   border-right: 0; border-bottom: 0; }
-  .net-tr { top: 8px;    right: 8px;  border-left: 0;  border-bottom: 0; }
-  .net-bl { bottom: 8px; left: 8px;   border-right: 0; border-top: 0; }
-  .net-br { bottom: 8px; right: 8px;  border-left: 0;  border-top: 0; }
 
   /* self-driving cursor */
-  #netCursor {
-    position: absolute;
-    width: 22px; height: 22px;
-    left: 0; top: 0;
-    opacity: 0;
-    pointer-events: none;
-    z-index: 6;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,.6));
-    transition: transform 1.15s cubic-bezier(.32,.72,.28,1), opacity .3s ease;
-  }
-  #netCursor.press { transform-origin: 0 0; }
-  @keyframes rippleOut {
-    from { opacity: .85; transform: translate(-50%, -50%) scale(.2); }
-    to   { opacity: 0;   transform: translate(-50%, -50%) scale(1); }
-  }
-  #netRipple {
-    position: absolute;
-    width: 62px; height: 62px;
-    border: 1px solid #4FC3F7;
-    border-radius: 9999px;
-    opacity: 0;
-    pointer-events: none;
-    z-index: 5;
-  }
-  #netRipple.go { animation: rippleOut .55s ease-out forwards; }
   @media (prefers-reduced-motion: reduce) {
-    #netCursor, #netRipple { display: none !important; }
   }
 
   /* falling code behind the terminal */
@@ -349,35 +312,8 @@ tailwind.config = {
     #gateRain { display: none; }
     .gate-mark { animation: none; }
   }
-
-  @keyframes gateScan { 0% { top: -10%; } 100% { top: 110%; } }
-  .gate-scan {
-    position: absolute; left: 0; right: 0; height: 28%;
-    background: linear-gradient(to bottom, transparent, rgba(79,195,247,.05), transparent);
-    animation: gateScan 7s linear infinite;
-    pointer-events: none;
-  }
-  .net-row { transition: border-color .25s ease, background-color .25s ease, transform .25s ease; }
-  .net-open { background: rgba(79,195,247,.06); }
-  .net-open:hover, .net-open.focused { background: rgba(79,195,247,.14); transform: translateX(3px); }
-  .net-locked { cursor: not-allowed; opacity: .55; }
-  @keyframes netPulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(79,195,247,.35); }
-    50%      { box-shadow: 0 0 0 4px rgba(79,195,247,0); }
-  }
-  .net-open { animation: netPulse 2.2s ease-in-out infinite; }
   @media (prefers-reduced-motion: reduce) {
-    .gate-scan { display: none; }
-    .net-open { animation: none; }
   }
-
-  @keyframes caret { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
-  .caret { display: inline-block; width: 8px; height: 1em; background: #4FC3F7; vertical-align: text-bottom; animation: caret 1s steps(1) infinite; }
-  @keyframes granted {
-    0%   { opacity: 0; transform: scale(.9); letter-spacing: .5em; }
-    100% { opacity: 1; transform: scale(1); letter-spacing: .22em; }
-  }
-  .granted { animation: granted .5s ease-out both; }
   @keyframes gatePiece {
     0%   { opacity: 0; transform: translate(var(--gx,-30px), var(--gy,-20px)) rotate(-30deg) scale(.5); }
     100% { opacity: 1; transform: none; }
@@ -385,7 +321,6 @@ tailwind.config = {
   .gate-pz { opacity: 0; }
   .gate-pz.in { animation: gatePiece .5s cubic-bezier(.2,.8,.3,1.1) both; }
   @media (prefers-reduced-motion: reduce) {
-    .caret, .granted, .gate-pz { animation: none !important; opacity: 1 !important; }
   }
 
   /* ---------- Certificate carousel ---------- */
@@ -675,154 +610,44 @@ tailwind.config = {
 
 <body class="bg-bg text-white font-sans antialiased overflow-x-clip gated">
 
-<!-- ============================================================ -->
-<!-- ACCESS TERMINAL INTRO -->
-<!-- ============================================================ -->
-<div id="gate" role="presentation">
-  <canvas id="gateRain" aria-hidden="true"></canvas>
-  <svg class="gate-mark" viewBox="0 0 24 24" fill="none" stroke="#4FC3F7" stroke-width="0.55" aria-hidden="true"><use href="#pzPath"/></svg>
-  <div class="gate-grid" aria-hidden="true"></div>
-  <div class="gate-scan" aria-hidden="true"></div>
-
-  <div class="relative w-full max-w-2xl border border-line bg-elev">
-    <!-- Terminal bar -->
-    <div class="flex items-center justify-between border-b border-line px-4 py-2.5">
-      <span class="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.16em] text-faint">
-        <span class="live-dot inline-block h-2 w-2 rounded-full bg-accent"></span>
-        <span id="gateChannel">secure-access // portfolio</span>
-      </span>
-      <div class="flex gap-1.5" aria-hidden="true">
-        <span class="h-2 w-2 rounded-full bg-[#1C2B47]"></span>
-        <span class="h-2 w-2 rounded-full bg-[#1C2B47]"></span>
-        <span class="h-2 w-2 rounded-full bg-[#1C2B47]"></span>
-      </div>
-    </div>
-
-    <!-- STAGE 1: login -->
-    <div id="gateAuth" class="px-6 py-7 font-mono text-sm leading-[1.618]">
-      <p class="text-faint">$ connect ugonna-ezenekwe.portfolio</p>
-
-      <!-- shown until the visitor interacts, which also unlocks audio -->
-      <button id="gateStart" type="button"
-        class="mt-4 flex w-full items-center justify-center gap-3 border border-accent bg-accent/10 px-4 py-3 font-mono text-xs uppercase tracking-[0.18em] text-accent transition-colors hover:bg-accent hover:text-bg">
-        <i data-lucide="power" class="h-4 w-4"></i> Press enter or click to connect
-      </button>
-
-      <div id="gateBody" class="hidden">
-      <p class="mt-1 text-faint">establishing session<span id="gDots"></span></p>
-
-      <div class="mt-5 space-y-2">
-        <p><span class="text-faint">username:</span> <span id="gUser" class="text-white"></span><span id="gUserCaret" class="caret"></span></p>
-        <p><span class="text-faint">password:</span> <span id="gPass" class="text-white"></span><span id="gPassCaret" class="caret" style="display:none"></span></p>
-      </div>
-
-      <div id="gStatus" class="mt-6 min-h-[3.5rem]"></div>
-
-      <div class="mt-5 flex items-center gap-2" aria-hidden="true">
-        <svg class="gate-pz h-5 w-5" data-i="0" style="--gx:-24px;--gy:-16px" viewBox="0 0 24 24" fill="none" stroke="#4FC3F7" stroke-width="1.5"><use href="#pzPath"/></svg>
-        <svg class="gate-pz h-5 w-5" data-i="1" style="--gx:20px;--gy:-18px" viewBox="0 0 24 24" fill="none" stroke="#4FC3F7" stroke-width="1.5"><use href="#pzPath"/></svg>
-        <svg class="gate-pz h-5 w-5" data-i="2" style="--gx:-18px;--gy:22px" viewBox="0 0 24 24" fill="none" stroke="#4FC3F7" stroke-width="1.5"><use href="#pzPath"/></svg>
-        <svg class="gate-pz h-5 w-5" data-i="3" style="--gx:26px;--gy:14px" viewBox="0 0 24 24" fill="none" stroke="#4FC3F7" stroke-width="1.5"><use href="#pzPath"/></svg>
-        <svg class="gate-pz h-5 w-5" data-i="4" style="--gx:0px;--gy:-26px" viewBox="0 0 24 24" fill="none" stroke="#4FC3F7" stroke-width="1.5"><use href="#pzPath"/></svg>
-      </div>
-      </div>
-    </div>
-
-    <!-- STAGE 2: network directory -->
-    <div id="gateNet" class="relative hidden px-6 py-6">
-      <!-- corner brackets -->
-      <span class="net-corner net-tl" aria-hidden="true"></span>
-      <span class="net-corner net-tr" aria-hidden="true"></span>
-      <span class="net-corner net-bl" aria-hidden="true"></span>
-      <span class="net-corner net-br" aria-hidden="true"></span>
-
-      <div class="flex flex-wrap items-start justify-between gap-3 border-b border-linesoft pb-3">
-        <div>
-          <p class="font-display text-lg font-bold uppercase tracking-[0.14em] text-white">Secure Archive</p>
-          <p class="mt-0.5 font-mono text-xs uppercase tracking-[0.16em] text-faint">Analyst network · access by clearance</p>
-        </div>
-        <p class="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-accent">
-          <span class="live-dot inline-block h-1.5 w-1.5 rounded-full bg-accent"></span> Signal secure
-        </p>
-      </div>
-
-      <div class="mt-4 grid gap-4 md:grid-cols-[1.618fr_1fr]">
-        <!-- dossier list -->
-        <ul class="space-y-1.5 font-mono text-sm">
-          <li>
-            <button type="button" class="net-row net-locked flex w-full items-center gap-3 border border-linesoft px-3 py-2.5 text-left" disabled>
-              <span class="text-faint">01</span>
-              <span class="flex-1 truncate text-faint">Field Notes &amp; Sketchbook</span>
-              <span class="shrink-0 text-xs uppercase tracking-[0.14em] text-faint">Locked</span>
-            </button>
-          </li>
-          <li>
-            <button type="button" id="netTarget" class="net-row net-open flex w-full items-center gap-3 border border-accent px-3 py-2.5 text-left">
-              <span class="text-accent">02</span>
-              <span class="flex-1 truncate text-white">Cybersecurity / GRC Portfolio</span>
-              <span class="shrink-0 text-xs uppercase tracking-[0.14em] text-accent">Available</span>
-            </button>
-          </li>
-          <li>
-            <button type="button" class="net-row net-locked flex w-full items-center gap-3 border border-linesoft px-3 py-2.5 text-left" disabled>
-              <span class="text-faint">03</span>
-              <span class="flex-1 truncate text-faint">Robotics Workshop</span>
-              <span class="shrink-0 text-xs uppercase tracking-[0.14em] text-faint">Locked</span>
-            </button>
-          </li>
-        </ul>
-
-        <!-- operation panel -->
-        <div class="space-y-3 border border-linesoft bg-bg/60 p-3 font-mono text-xs uppercase tracking-[0.12em]">
-          <div>
-            <p class="text-faint">Operation</p>
-            <p class="mt-0.5 text-accent">Security controls audit</p>
-          </div>
-          <div>
-            <p class="text-faint">Location</p>
-            <p class="mt-0.5 text-body">London, United Kingdom</p>
-          </div>
-          <div>
-            <p class="text-faint">Status</p>
-            <p class="mt-0.5 text-body">Open to work</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- decrypt readout -->
-      <div id="netDecrypt" class="mt-4 hidden">
-        <div class="h-1.5 w-full overflow-hidden bg-[#142138]">
-          <div id="netBar" class="h-full w-0 bg-accent" style="box-shadow:0 0 10px rgba(79,195,247,.7); transition: width .25s linear"></div>
-        </div>
-        <p id="netLog" class="mt-2 font-mono text-xs uppercase tracking-[0.14em] text-body"></p>
-      </div>
-
-      <p id="netStatusLine" class="mt-4 border-t border-linesoft pt-3 font-mono text-xs uppercase tracking-[0.16em] text-accent">Status: dossier ready for decryption</p>
-
-      <!-- self-driving cursor -->
-      <svg id="netCursor" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M5 3l14 8.5-6.2 1.3L9.6 19 5 3z" fill="#fff" stroke="#060B16" stroke-width="1.2" stroke-linejoin="round"/>
-      </svg>
-      <span id="netRipple" aria-hidden="true"></span>
-    </div>
-
-    <!-- Skip -->
-    <div class="flex items-center justify-between border-t border-line px-4 py-2.5">
-      <button id="soundToggle" type="button" aria-pressed="true"
-        class="flex items-center gap-2 border border-line px-3 py-1.5 font-mono text-xs uppercase tracking-[0.14em] text-body transition-colors hover:border-accent hover:text-accent">
-        <i data-lucide="volume-2" class="h-3.5 w-3.5"></i><span id="soundLabel">Sound on</span>
-      </button>
-      <button id="gateSkip" type="button" class="border border-line px-3 py-1.5 font-mono text-xs uppercase tracking-[0.14em] text-body transition-colors hover:border-accent hover:text-accent">Skip intro</button>
-    </div>
-  </div>
-</div>
-
 <!-- Reusable puzzle path (Lucide 'puzzle') -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
     <path id="pzPath" d="M19.439 7.85c-.049.322.059.648.289.878l1.568 1.568c.47.47.706 1.087.706 1.704s-.235 1.233-.706 1.704l-1.611 1.611a.98.98 0 0 1-.837.276c-.47-.07-.802-.48-.968-.925a2.501 2.501 0 1 0-3.214 3.214c.446.166.855.497.925.968a.979.979 0 0 1-.276.837l-1.61 1.61a2.404 2.404 0 0 1-1.705.707 2.402 2.402 0 0 1-1.704-.706l-1.568-1.568a1.026 1.026 0 0 0-.877-.29c-.493.074-.84.504-1.02.968a2.5 2.5 0 1 1-3.237-3.237c.464-.18.894-.527.967-1.02a1.026 1.026 0 0 0-.289-.877l-1.568-1.568A2.402 2.402 0 0 1 1.998 12c0-.617.236-1.234.706-1.704L4.23 8.77c.24-.24.581-.353.917-.303.515.077.877.528 1.073 1.01a2.5 2.5 0 1 0 3.259-3.259c-.482-.196-.933-.558-1.01-1.073-.05-.336.062-.676.303-.917l1.525-1.525A2.402 2.402 0 0 1 12 1.998c.617 0 1.234.236 1.704.706l1.568 1.568c.23.23.556.338.877.29.493-.074.84-.504 1.02-.968a2.5 2.5 0 1 1 3.237 3.237c-.464.18-.894.527-.967 1.02Z"/>
   </defs>
 </svg>
+
+<!-- ============================================================ -->
+<!-- LOADING INTRO -->
+<!-- ============================================================ -->
+<div id="gate" role="presentation">
+  <canvas id="gateRain" aria-hidden="true"></canvas>
+  <svg class="gate-mark" viewBox="0 0 24 24" fill="none" stroke="#4FC3F7" stroke-width="0.55" aria-hidden="true"><use href="#pzPath"/></svg>
+  <div class="gate-grid" aria-hidden="true"></div>
+
+  <div class="relative w-full max-w-sm text-center">
+    <p class="font-display text-[1.618rem] font-black uppercase tracking-[-0.02em] text-white">Ugonna Ezenekwe</p>
+    <p class="mt-1.5 font-mono text-xs uppercase tracking-[0.2em] text-accent">Cybersecurity · GRC · Security Operations</p>
+
+    <!-- assembling pieces -->
+    <div class="mt-6 flex items-center justify-center gap-2" aria-hidden="true">
+      <svg class="gate-pz h-5 w-5" style="--gx:-22px;--gy:-14px" viewBox="0 0 24 24" fill="none" stroke="#4FC3F7" stroke-width="1.5"><use href="#pzPath"/></svg>
+      <svg class="gate-pz h-5 w-5" style="--gx:18px;--gy:-16px" viewBox="0 0 24 24" fill="none" stroke="#4FC3F7" stroke-width="1.5"><use href="#pzPath"/></svg>
+      <svg class="gate-pz h-5 w-5" style="--gx:-16px;--gy:20px" viewBox="0 0 24 24" fill="none" stroke="#4FC3F7" stroke-width="1.5"><use href="#pzPath"/></svg>
+      <svg class="gate-pz h-5 w-5" style="--gx:22px;--gy:12px" viewBox="0 0 24 24" fill="none" stroke="#4FC3F7" stroke-width="1.5"><use href="#pzPath"/></svg>
+      <svg class="gate-pz h-5 w-5" style="--gx:0px;--gy:-24px" viewBox="0 0 24 24" fill="none" stroke="#4FC3F7" stroke-width="1.5"><use href="#pzPath"/></svg>
+    </div>
+
+    <!-- progress -->
+    <div class="mt-6 h-[3px] w-full overflow-hidden bg-[#142138]">
+      <div id="loadBar" class="h-full w-0 bg-accent" style="box-shadow:0 0 10px rgba(79,195,247,.7); transition: width .18s linear"></div>
+    </div>
+    <div class="mt-2.5 flex items-center justify-between font-mono text-xs uppercase tracking-[0.14em]">
+      <span id="loadLog" class="text-faint">Initialising</span>
+      <span id="loadPct" class="text-accent">0%</span>
+    </div>
+  </div>
+</div>
 
 <!-- ============================================================ -->
 <!-- HEADER -->
@@ -836,7 +661,7 @@ tailwind.config = {
     <div class="flex items-center gap-2 sm:gap-3">
       <a href="https://github.com/ugartificalg8djpg/Resume/raw/main/Ugonna_Ezenekwe_CV.pdf" target="_blank" rel="noopener"
          class="flex items-center gap-2 border border-line px-3 py-1.5 font-mono text-xs uppercase tracking-[0.12em] text-white transition-colors hover:border-accent hover:text-accent sm:px-4">
-        <i data-lucide="download" class="h-3.5 w-3.5"></i><span class="hidden xs:inline sm:inline">Download CV</span><span class="xs:hidden sm:hidden">CV</span>
+        <i data-lucide="download" class="h-3.5 w-3.5"></i><span class="hidden sm:inline">Download CV</span><span class="sm:hidden">CV</span>
       </a>
       <button id="menuBtn" type="button" class="flex h-11 w-11 items-center justify-center xl:hidden" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
         <i data-lucide="menu" class="h-5 w-5"></i>
@@ -848,13 +673,12 @@ tailwind.config = {
       <a href="#background" class="border-b border-linesoft py-3 text-sm text-body">Background</a>
       <a href="#audits" class="border-b border-linesoft py-3 text-sm text-body">Audits</a>
       <a href="#journal" class="border-b border-linesoft py-3 text-sm text-body">Journal</a>
-      <a href="#monitor" class="border-b border-linesoft py-3 text-sm text-body">SOC Lab</a>
-      <a href="https://github.com/ugartificalg8djpg/Resume/raw/main/Ugonna_Ezenekwe_CV.pdf" target="_blank" rel="noopener" class="py-3 text-sm text-white">Download CV</a>
+      <a href="#monitor" class="py-3 text-sm text-body">SOC Lab</a>
     </nav>
   </div>
 </header>
 
-<!-- Fixed scroll progress: clickable pieces with tab labels, lock in as sections are completed -->
+<!-- Fixed scroll progress: clickable pieces with tab labels -->
 <nav id="pzProgress" class="fixed bottom-6 left-6 z-40 hidden flex-col items-start gap-3.5 min-[1366px]:flex" aria-label="Section progress">
   <a href="#background" class="pp-link group flex items-center gap-2" data-sec="background">
     <svg class="pp h-7 w-7 shrink-0" viewBox="0 0 24 24" fill="none" stroke="#2A4067" stroke-width="1.5"><use href="#pzPath"/></svg>
@@ -1099,6 +923,7 @@ tailwind.config = {
               <span class="border border-line px-2 py-1 font-mono text-xs text-body">Controls Auditing</span>
               <span class="border border-line px-2 py-1 font-mono text-xs text-body">Risk Assessment</span>
               <span class="border border-line px-2 py-1 font-mono text-xs text-body">Gap Analysis</span>
+              <span class="border border-line px-2 py-1 font-mono text-xs text-body">Vendor Risk (TPRM)</span>
               <span class="border border-line px-2 py-1 font-mono text-xs text-body">Control Assessment</span>
               <span class="border border-line px-2 py-1 font-mono text-xs text-body">Alert Triage</span>
               <span class="border border-line px-2 py-1 font-mono text-xs text-body">Incident Reporting</span>
@@ -1119,6 +944,7 @@ tailwind.config = {
               <span class="border border-line px-2 py-1 font-mono text-xs text-body">VirtualBox</span>
               <span class="border border-line px-2 py-1 font-mono text-xs text-body">SQL</span>
               <span class="border border-line px-2 py-1 font-mono text-xs text-body">Python</span>
+              <span class="border border-line px-2 py-1 font-mono text-xs text-body">Streamlit</span>
               <span class="border border-line px-2 py-1 font-mono text-xs text-body">Excel</span>
               <span class="border border-line px-2 py-1 font-mono text-xs text-body">SPSS</span>
             </div>
@@ -1204,7 +1030,7 @@ tailwind.config = {
                 </span>
                 <span class="font-mono text-xs text-faint" aria-hidden="true">&#8599;</span>
               </a>
-              <a href="https://github.com/ugartificalg8djpg?tab=repositories" target="_blank" rel="noopener" class="group flex items-center justify-between gap-2 border border-line px-3 py-2 transition-colors hover:border-accent">
+              <a href="https://github.com/ugartificalg8djpg" target="_blank" rel="noopener" class="group flex items-center justify-between gap-2 border border-line px-3 py-2 transition-colors hover:border-accent">
                 <span class="flex items-center gap-2">
                   <i data-lucide="github" class="h-3.5 w-3.5 text-accent"></i>
                   <span class="font-mono text-xs text-body group-hover:text-white">GitHub</span>
@@ -1240,7 +1066,7 @@ tailwind.config = {
       </p>
       <h2 class="mt-[var(--phi0)] max-w-[var(--read)] font-display text-[clamp(1.618rem,4.2vw,2.618rem)] font-bold leading-[1.15] tracking-tight">Controls audits, risk registers and incident reports.</h2>
     </div>
-    <a href="https://github.com/ugartificalg8djpg?tab=repositories" target="_blank" rel="noopener" class="link-u w-fit text-sm text-body hover:text-white">All projects on GitHub →</a>
+    <a href="https://github.com/ugartificalg8djpg" target="_blank" rel="noopener" class="link-u w-fit text-sm text-body hover:text-white">GitHub profile →</a>
   </div>
 
   <!-- Flagship: SOC simulation -->
@@ -1275,13 +1101,30 @@ tailwind.config = {
       <button data-modal="mSoc" class="report-btn inline-flex items-center gap-2 border border-accent bg-accent/10 px-4 py-2 font-mono text-xs uppercase tracking-[0.14em] text-accent transition-colors hover:bg-accent hover:text-bg">
         <i data-lucide="file-search" class="h-3.5 w-3.5"></i> [ Read Full Report ]
       </button>
-      <a href="https://github.com/ugartificalg8djpg?tab=repositories" target="_blank" rel="noopener" class="inline-flex items-center gap-2 border border-line px-4 py-2 font-mono text-xs uppercase tracking-[0.14em] text-body transition-colors hover:border-accent hover:text-accent">
-        <i data-lucide="github" class="h-3.5 w-3.5"></i> [ GitHub ]
-      </a>
     </div>
   </article>
 
   <div class="mt-[var(--phi1)] grid gap-[var(--phi1)] md:grid-cols-2 xl:grid-cols-3">
+
+    <!-- Third party risk scorer -->
+    <article class="card reveal flex flex-col border border-line bg-elev p-[var(--phi1)]">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <span class="font-mono text-xs uppercase tracking-[0.18em] text-accent">Vendor Risk · Tooling</span>
+        <span class="border border-line px-2.5 py-1 font-mono text-xs uppercase tracking-[0.14em] text-faint">[ Python ]</span>
+      </div>
+      <h3 class="mt-4 font-display text-[1.309rem] font-bold leading-[1.25] tracking-[-0.02em] md:text-[1.618rem]">Third Party Risk Questionnaire Scorer</h3>
+      <p class="mt-2 font-mono text-xs uppercase tracking-[0.12em] text-faint">Independent · Hackathon build · September 2026</p>
+      <div class="mt-5 space-y-3 text-sm leading-[1.618] text-body">
+        <p><span class="font-mono text-xs uppercase tracking-[0.14em] text-faint">Objective: </span>Turn vendor questionnaire responses into a consistent, defensible risk score, rather than a reviewer's judgement call on a spreadsheet.</p>
+        <p><span class="font-mono text-xs uppercase tracking-[0.14em] text-faint">Build: </span>A Python scoring engine behind a Streamlit interface, with a 40 question control set mapped to NIST CSF 2.0 and ISO/IEC 27001:2022 Annex A.</p>
+        <p><span class="font-mono text-xs uppercase tracking-[0.14em] text-faint">Outcome: </span>Each response maps to its control reference and weighted score, so two reviewers assessing the same vendor reach the same result and can show why.</p>
+      </div>
+      <div class="mt-auto flex flex-wrap gap-4 pt-6">
+        <button data-modal="mTprm" class="report-btn inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-accent transition-colors hover:text-white">
+          <i data-lucide="file-search" class="h-3.5 w-3.5"></i> [ Read Full Write-up ]
+        </button>
+      </div>
+    </article>
 
     <!-- Botium Toys -->
     <article class="card reveal flex flex-col border border-line bg-elev p-[var(--phi1)]">
@@ -1300,9 +1143,6 @@ tailwind.config = {
         <button data-modal="mBotium" class="report-btn inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-accent transition-colors hover:text-white">
           <i data-lucide="file-search" class="h-3.5 w-3.5"></i> [ Read Full Report ]
         </button>
-        <a href="https://github.com/ugartificalg8djpg?tab=repositories" target="_blank" rel="noopener" class="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-body transition-colors hover:text-accent">
-          <i data-lucide="github" class="h-3.5 w-3.5"></i> [ GitHub ] <span aria-hidden="true">&#8599;</span>
-        </a>
       </div>
     </article>
 
@@ -1346,9 +1186,6 @@ tailwind.config = {
         <button data-modal="mBrute" class="report-btn inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-accent transition-colors hover:text-white">
           <i data-lucide="file-search" class="h-3.5 w-3.5"></i> [ Read Full Report ]
         </button>
-        <a href="https://github.com/ugartificalg8djpg" target="_blank" rel="noopener" class="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-body transition-colors hover:text-accent">
-          <i data-lucide="github" class="h-3.5 w-3.5"></i> [ GitHub ] <span aria-hidden="true">↗</span>
-        </a>
       </div>
     </article>
 
@@ -1369,9 +1206,6 @@ tailwind.config = {
         <button data-modal="mShark" class="report-btn inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-accent transition-colors hover:text-white">
           <i data-lucide="file-search" class="h-3.5 w-3.5"></i> [ Read Full Report ]
         </button>
-        <a href="https://github.com/ugartificalg8djpg" target="_blank" rel="noopener" class="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-body transition-colors hover:text-accent">
-          <i data-lucide="github" class="h-3.5 w-3.5"></i> [ GitHub ] <span aria-hidden="true">↗</span>
-        </a>
       </div>
     </article>
 
@@ -1389,9 +1223,6 @@ tailwind.config = {
         <p><span class="font-mono text-xs uppercase tracking-[0.14em] text-faint">Outcome: </span>Written audit report presenting prioritised findings to technical and non-technical audiences, aligned to NIST CSF.</p>
       </div>
       <div class="mt-auto flex flex-wrap gap-4 pt-6">
-        <a href="https://github.com/ugartificalg8djpg" target="_blank" rel="noopener" class="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-body transition-colors hover:text-accent">
-          <i data-lucide="github" class="h-3.5 w-3.5"></i> [ View on GitHub ] <span aria-hidden="true">↗</span>
-        </a>
       </div>
     </article>
   </div>
@@ -1914,6 +1745,40 @@ tailwind.config = {
   </div>
 </div>
 
+<!-- TPRM scorer write-up -->
+<div id="mTprm" class="modal fixed inset-0 z-[100] items-end justify-center bg-black/70 p-0 backdrop-blur-sm md:items-center md:p-[var(--phi1)]" role="dialog" aria-modal="true" aria-labelledby="mTprmTitle">
+  <div class="modal-panel relative flex max-h-[92svh] w-full max-w-[min(var(--read),94vw)] flex-col border border-line bg-elev">
+    <div class="flex items-center justify-between border-b border-line px-6 py-4">
+      <div>
+        <p class="font-mono text-xs uppercase tracking-[0.16em] text-accent">[ Tooling Write-up · September 2026 ]</p>
+        <h3 id="mTprmTitle" class="mt-1 font-display text-lg font-bold tracking-tight">Third Party Risk Questionnaire Scorer</h3>
+      </div>
+      <button class="modal-close flex h-9 w-9 items-center justify-center border border-line text-body transition-colors hover:border-accent hover:text-accent" aria-label="Close write-up">
+        <i data-lucide="x" class="h-4 w-4"></i>
+      </button>
+    </div>
+    <div class="report-body overflow-y-auto px-[var(--phi1)] py-[var(--phi1)] text-sm leading-[1.618] text-body">
+
+      <p class="font-mono text-xs uppercase tracking-[0.16em] text-faint">The problem</p>
+      <p class="mt-2">Third party risk assessment usually arrives as a returned questionnaire and a reviewer's opinion. Two analysts reading the same vendor responses can reach different conclusions, and neither can easily show how they got there. That is a governance problem as much as a security one: an assessment that cannot be reproduced cannot be audited.</p>
+
+      <p class="mt-5 font-mono text-xs uppercase tracking-[0.16em] text-faint">What it does</p>
+      <ul class="mt-2 space-y-2">
+        <li class="border-l-2 border-accent pl-3">Presents a 40 question control set covering the areas a vendor assessment has to reach: access control, data protection, incident response, business continuity and supplier management.</li>
+        <li class="border-l-2 border-line pl-3">Maps every question to its underlying control reference in NIST CSF 2.0 and ISO/IEC 27001:2022 Annex A, so a score is always traceable to a recognised framework rather than to house opinion.</li>
+        <li class="border-l-2 border-line pl-3">Applies weighted scoring through a Python engine, so gaps in higher impact controls move the result more than gaps in peripheral ones.</li>
+        <li class="border-l-2 border-line pl-3">Runs behind a Streamlit interface, so the person completing the assessment does not need to touch the code.</li>
+      </ul>
+
+      <p class="mt-5 font-mono text-xs uppercase tracking-[0.16em] text-faint">Why it was built this way</p>
+      <p class="mt-2">The framework mapping is the part that matters. A raw score on its own tells a vendor manager very little and gives a vendor nothing to act on. Tying each answer to a named control means the output doubles as a remediation list, and it means the same assessment can be defended in front of an auditor who asks where a number came from.</p>
+
+      <p class="mt-5 font-mono text-xs uppercase tracking-[0.16em] text-faint">Context</p>
+      <p class="mt-2">Built for a cybersecurity hackathon. The goal was to work alongside other people in the field and produce something genuinely useful under time pressure, rather than to win it, and the constraint of a short build window is what kept the scope to one problem solved properly.</p>
+    </div>
+  </div>
+</div>
+
 <div id="mShark" class="modal fixed inset-0 z-[100] items-end justify-center bg-black/70 p-0 backdrop-blur-sm md:items-center md:p-[var(--phi1)]" role="dialog" aria-modal="true" aria-labelledby="mSharkTitle">
   <div class="modal-panel relative flex max-h-[92svh] w-full max-w-[min(var(--read),94vw)] flex-col border border-line bg-elev">
     <div class="flex items-center justify-between border-b border-line px-6 py-4">
@@ -1967,21 +1832,23 @@ udp port 53 unreachable length 150</pre>
 </div>
 
 <script>
-  lucide.createIcons();
+  if (window.lucide) lucide.createIcons();
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // ----- Mobile menu -----
   const menuBtn = document.getElementById('menuBtn');
   const mobileMenu = document.getElementById('mobileMenu');
-  menuBtn.addEventListener('click', () => {
-    const open = mobileMenu.classList.toggle('hidden') === false;
-    menuBtn.setAttribute('aria-expanded', String(open));
-  });
-  mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
-    mobileMenu.classList.add('hidden');
-    menuBtn.setAttribute('aria-expanded', 'false');
-  }));
+  if (menuBtn && mobileMenu) {
+    menuBtn.addEventListener('click', () => {
+      const open = mobileMenu.classList.toggle('hidden') === false;
+      menuBtn.setAttribute('aria-expanded', String(open));
+    });
+    mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+      mobileMenu.classList.add('hidden');
+      menuBtn.setAttribute('aria-expanded', 'false');
+    }));
+  }
 
   // ----- Scroll reveal + puzzle lock-ins -----
   const observer = new IntersectionObserver((entries) => {
@@ -2013,131 +1880,19 @@ udp port 53 unreachable length 150</pre>
   const heroName = document.getElementById('heroName');
   let burstTimer = null;
   function triggerBurst() {
-    if (reduceMotion) return;
+    if (reduceMotion || !heroName) return;
     heroName.classList.remove('bursting');
     void heroName.offsetWidth; // restart animation
     heroName.classList.add('bursting');
     clearTimeout(burstTimer);
     burstTimer = setTimeout(() => heroName.classList.remove('bursting'), 1200);
   }
-  heroName.addEventListener('mouseenter', triggerBurst);
-  heroName.addEventListener('click', triggerBurst);
+  if (heroName) {
+    heroName.addEventListener('mouseenter', triggerBurst);
+    heroName.addEventListener('click', triggerBurst);
+  }
   // One burst on load for first impressions
   window.addEventListener('load', () => setTimeout(triggerBurst, 600));
-
-  // ----- Audio: keystroke and click samples -----
-  const Audio = (function audioEngine() {
-    let enabled = true;
-    let actx = null;
-    const buffers = { keys: [], click: null };
-    let ready = false;
-
-    const SRC = {
-      keys: [
-      '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'
-      ],
-      click: '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'
-    };
-
-    function ctx() {
-      if (!actx) {
-        const AC = window.AudioContext || window.webkitAudioContext;
-        if (!AC) return null;
-        actx = new AC();
-      }
-      if (actx.state === 'suspended') actx.resume();
-      return actx;
-    }
-
-    function toBytes(b64) {
-      const bin = atob(b64);
-      const arr = new Uint8Array(bin.length);
-      for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-      return arr.buffer;
-    }
-
-    function decodeAll() {
-      const c = ctx();
-      if (!c || ready) return;
-      ready = true;
-      SRC.keys.forEach(function (b64, i) {
-        c.decodeAudioData(toBytes(b64), function (buf) { buffers.keys[i] = buf; }, function () {});
-      });
-      c.decodeAudioData(toBytes(SRC.click), function (buf) { buffers.click = buf; }, function () {});
-    }
-
-    function play(buf, vol, rate) {
-      const c = ctx();
-      if (!c || !enabled || !buf) return;
-      const src = c.createBufferSource();
-      src.buffer = buf;
-      src.playbackRate.value = rate || 1;
-      const g = c.createGain();
-      g.gain.value = vol;
-      src.connect(g).connect(c.destination);
-      src.start(0);
-    }
-
-    // Keystroke: a random sample at a slightly random pitch, so repeated
-    // presses never sound like the same clip looping
-    function key() {
-      const list = buffers.keys.filter(Boolean);
-      if (!list.length) return;
-      play(list[(Math.random() * list.length) | 0], 0.5 + Math.random() * 0.2, 0.94 + Math.random() * 0.14);
-    }
-    function keyHard() {
-      const list = buffers.keys.filter(Boolean);
-      if (!list.length) return;
-      play(list[(Math.random() * list.length) | 0], 0.75, 0.88);
-    }
-    function mouseClick() { play(buffers.click, 0.7, 1); }
-
-    // Called from a real user gesture: creates the context, decodes the
-    // samples, and satisfies the browser autoplay policy in one step
-    function unlock() {
-      const c = ctx();
-      if (!c) return false;
-      if (c.state === 'suspended') c.resume();
-      try {
-        const b = c.createBuffer(1, 1, c.sampleRate);
-        const s2 = c.createBufferSource();
-        s2.buffer = b;
-        s2.connect(c.destination);
-        s2.start(0);
-      } catch (err) { /* nothing to do */ }
-      decodeAll();
-      return c.state === 'running';
-    }
-
-    function setEnabled(v) { enabled = v; }
-
-    return { key: key, keyHard: keyHard, mouseClick: mouseClick,
-             unlock: unlock, setEnabled: setEnabled, isOn: function () { return enabled; } };
-  })();
-
-  // Sound toggle in the gate footer
-  (function soundToggleSetup() {
-    const btn = document.getElementById('soundToggle');
-    if (!btn) return;
-    const label = document.getElementById('soundLabel');
-    btn.addEventListener('click', function () {
-      const on = !Audio.isOn();
-      Audio.setEnabled(on);
-      btn.setAttribute('aria-pressed', String(on));
-      if (label) label.textContent = on ? 'Sound on' : 'Sound off';
-      const icon = btn.querySelector('svg, i');
-      if (icon && window.lucide) {
-        icon.outerHTML = '<i data-lucide="' + (on ? 'volume-2' : 'volume-x') + '" class="h-3.5 w-3.5"></i>';
-        window.lucide.createIcons();
-      }
-      if (on) Audio.key();
-    });
-  })();
 
   // ----- Falling code behind the access terminal -----
   (function codeRain() {
@@ -2236,27 +1991,23 @@ udp port 53 unreachable length 150</pre>
     });
   })();
 
-  // ----- Access intro: login, then archive directory -----
-  (function gateIntro() {
+  // Failsafe: whatever happens below, never leave the loader on screen
+  setTimeout(function () {
+    const g = document.getElementById('gate');
+    if (g) { g.classList.add('done'); setTimeout(function () { if (g.parentNode) g.remove(); }, 350); }
+    document.body.classList.remove('gated');
+  }, 3000);
+
+  // ----- Loading intro -----
+  (function loadIntro() {
     const gate = document.getElementById('gate');
     if (!gate) return;
-    const auth = document.getElementById('gateAuth');
-    const net = document.getElementById('gateNet');
-    const channel = document.getElementById('gateChannel');
-    const uEl = document.getElementById('gUser');
-    const pEl = document.getElementById('gPass');
-    const uCaret = document.getElementById('gUserCaret');
-    const pCaret = document.getElementById('gPassCaret');
-    const dots = document.getElementById('gDots');
-    const status = document.getElementById('gStatus');
+    const bar = document.getElementById('loadBar');
+    const pct = document.getElementById('loadPct');
+    const log = document.getElementById('loadLog');
     const pieces = gate.querySelectorAll('.gate-pz');
-    const target = document.getElementById('netTarget');
-    const decrypt = document.getElementById('netDecrypt');
-    const bar = document.getElementById('netBar');
-    const log = document.getElementById('netLog');
     const timers = [];
     let finished = false;
-    let stage = 'auth';
 
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
@@ -2267,201 +2018,50 @@ udp port 53 unreachable length 150</pre>
     }
     toTop();
 
-    function unlock() {
+    function done() {
       if (finished) return;
       finished = true;
       timers.forEach(clearTimeout);
       toTop();
       gate.classList.add('done');
       document.body.classList.remove('gated');
-      toTop();
       requestAnimationFrame(toTop);
-      setTimeout(toTop, 120);
       setTimeout(function () {
         toTop();
         if (gate.parentNode) gate.remove();
         if (typeof updateProgress === 'function') updateProgress();
-      }, 400);
+      }, 320);
     }
     function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
 
-    document.getElementById('gateSkip').addEventListener('click', unlock);
-    document.addEventListener('keydown', function (e) {
+    // Any key or click skips straight in
+    document.addEventListener('keydown', function () { done(); }, { once: true });
+    gate.addEventListener('click', done);
+
+    if (reduceMotion || window.location.hash) { done(); return; }
+
+    const steps = [
+      { at: 25,  label: 'Loading case studies' },
+      { at: 55,  label: 'Assembling the picture' },
+      { at: 82,  label: 'Preparing dashboard' },
+      { at: 100, label: 'Ready' }
+    ];
+
+    // pieces snap in quickly alongside the bar
+    pieces.forEach(function (p, i) { later(function () { p.classList.add('in'); }, 60 + i * 45); });
+
+    let i = 0;
+    function tick() {
       if (finished) return;
-      if (e.key === 'Escape') { unlock(); return; }
-      if (e.key === 'Enter') {
-        if (stage === 'net') { e.preventDefault(); openDossier(); }
-        else if (started) unlock();
-      }
-    });
-
-    // Stage 3: decrypt the selected dossier, then reveal the portfolio
-    function openDossier() {
-      if (stage !== 'net') return;
-      stage = 'decrypt';
-      target.classList.add('focused');
-      target.disabled = true;
-      decrypt.classList.remove('hidden');
-      channel.textContent = 'decrypting // grc-portfolio';
-      if (document.getElementById('netStatusLine')) document.getElementById('netStatusLine').textContent = 'Status: decrypting archive';
-
-      const steps = [
-        'verifying clearance',
-        'decrypting archive',
-        'assembling the full picture',
-        'ready'
-      ];
-      let i = 0;
-      function step() {
-        if (finished) return;
-        log.textContent = steps[i];
-        bar.style.width = ((i + 1) / steps.length * 100) + '%';
-        i++;
-        if (i < steps.length) later(step, 340);
-        else {
-          later(unlock, 620);
-        }
-      }
-      step();
+      const s2 = steps[i];
+      bar.style.width = s2.at + '%';
+      pct.textContent = s2.at + '%';
+      log.textContent = s2.label;
+      i++;
+      if (i < steps.length) later(tick, 200);
+      else later(done, 260);
     }
-    target.addEventListener('click', function () {
-      if (typeof Audio !== 'undefined' && stage === 'net') Audio.mouseClick();
-      target.classList.add('pressed');
-      setTimeout(function () { target.classList.remove('pressed'); }, 160);
-      openDossier();
-    });
-
-    // Reduced motion, or arriving at a direct link: straight in
-    if (reduceMotion || window.location.hash) { unlock(); return; }
-
-    // Nothing runs until the visitor connects. That gesture is what lets the
-    // browser play audio at all, so every keystroke and click is audible.
-    const startBtn = document.getElementById('gateStart');
-    const gateBody = document.getElementById('gateBody');
-    let started = false;
-
-    function begin() {
-      if (started || finished) return;
-      started = true;
-      if (typeof Audio !== 'undefined') { Audio.unlock(); Audio.mouseClick(); }
-      if (startBtn) startBtn.remove();
-      if (gateBody) gateBody.classList.remove('hidden');
-      runLogin();
-    }
-    if (startBtn) startBtn.addEventListener('click', begin);
-    document.addEventListener('keydown', function (e) {
-      if (!started && !finished && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); begin(); }
-    });
-
-    let d = 0;
-    let dotTimer = null;
-    function startDots() {
-      dotTimer = setInterval(function () {
-        d = (d + 1) % 4;
-        dots.textContent = '.'.repeat(d);
-        if (finished) clearInterval(dotTimer);
-      }, 200);
-    }
-
-    function type(el, text, speed, done) {
-      let i = 0;
-      (function tick() {
-        if (finished) return;
-        el.textContent = text.slice(0, ++i);
-        if (typeof Audio !== 'undefined') Audio.key();
-        // slight timing jitter so the typing sounds human rather than metronomic
-        if (i < text.length) later(tick, speed + (Math.random() * speed * 0.55 - speed * 0.2));
-        else if (done) { if (typeof Audio !== 'undefined') Audio.keyHard(); later(done, 160); }
-      })();
-    }
-
-    // Stage 2: swap the login panel for the directory, then let the cursor drive
-    const cursor = document.getElementById('netCursor');
-    const ripple = document.getElementById('netRipple');
-    const statusLine = document.getElementById('netStatusLine');
-
-    function driveCursor() {
-      if (finished || !cursor) return;
-      const box = net.getBoundingClientRect();
-      const row = target.getBoundingClientRect();
-      // start low and to the left, as if the pointer just arrived on screen
-      const startX = box.width * 0.12;
-      const startY = box.height * 0.92;
-      const endX = row.left - box.left + row.width * 0.34;
-      const endY = row.top - box.top + row.height * 0.62;
-
-      cursor.style.transition = 'none';
-      cursor.style.transform = 'translate(' + startX + 'px,' + startY + 'px)';
-      cursor.style.opacity = '0';
-
-      requestAnimationFrame(function () {
-        cursor.style.transition = 'transform 1.15s cubic-bezier(.32,.72,.28,1), opacity .3s ease';
-        cursor.style.opacity = '1';
-        // small hesitation partway, the way a real hand moves
-        later(function () {
-          cursor.style.transform = 'translate(' + (endX - 26) + 'px,' + (endY + 18) + 'px)';
-        }, 60);
-        later(function () {
-          cursor.style.transition = 'transform .42s cubic-bezier(.4,0,.2,1), opacity .3s ease';
-          cursor.style.transform = 'translate(' + endX + 'px,' + endY + 'px)';
-          target.classList.add('focused');
-          if (statusLine) statusLine.textContent = 'Status: dossier selected';
-        }, 1180);
-        // click
-        later(function () {
-          if (finished || stage !== 'net') return;
-          cursor.style.transform = 'translate(' + endX + 'px,' + endY + 'px) scale(.82)';
-          if (typeof Audio !== 'undefined') Audio.mouseClick();
-          if (ripple) {
-            ripple.style.left = endX + 'px';
-            ripple.style.top = endY + 'px';
-            ripple.classList.remove('go');
-            void ripple.offsetWidth;
-            ripple.classList.add('go');
-          }
-          later(function () {
-            cursor.style.transform = 'translate(' + endX + 'px,' + endY + 'px) scale(1)';
-          }, 130);
-          later(openDossier, 200);
-        }, 1720);
-        later(function () { cursor.style.opacity = '0'; }, 2100);
-      });
-    }
-
-    function showDirectory() {
-      if (finished) return;
-      stage = 'net';
-      auth.classList.add('hidden');
-      net.classList.remove('hidden');
-      channel.textContent = 'archive // directory';
-      target.focus({ preventScroll: true });
-      later(driveCursor, 260);
-    }
-
-    function runLogin() {
-    startDots();
-    later(function () {
-      type(uEl, 'ugonna.ezenekwe', 38, function () {
-        uCaret.style.display = 'none';
-        pCaret.style.display = 'inline-block';
-        type(pEl, '\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022', 32, function () {
-          pCaret.style.display = 'none';
-          clearInterval(dotTimer);
-          dots.textContent = ' ok';
-          status.innerHTML = '<p class="text-body">authenticating<span class="caret"></span></p>';
-          later(function () {
-            status.innerHTML =
-              '<p class="granted text-lg uppercase tracking-[0.22em] text-accent" style="text-shadow:0 0 18px rgba(79,195,247,.6)">Access granted</p>' +
-              '<p class="mt-1.5 text-xs uppercase tracking-[0.14em] text-faint">opening archive</p>';
-            pieces.forEach(function (p, i) {
-              later(function () { p.classList.add('in'); }, i * 60);
-            });
-            later(showDirectory, 780);
-          }, 480);
-        });
-      });
-    }, 320);
-    }
+    later(tick, 120);
   })();
 
   // ----- Odometer stat counters -----
