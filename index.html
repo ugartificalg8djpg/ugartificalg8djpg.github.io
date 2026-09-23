@@ -1262,34 +1262,116 @@ udp port 53 unreachable length 150</pre>
   })();
 
   /* ---------- Organisation logos ----------
-     To add a logo later: save a square image as logos/<key>.jpg (or .png, .svg)
-     and add one line to this map. Mark up an element with data-org="<key>"
-     and, optionally, data-org-label="AB" for the monogram fallback. */
-  var LOGOS = {
-    middlesex: 'logos/middlesex.jpg',
-    google:    'logos/google.jpg',
-    coop:      'logos/coop.jpg',
-    tesco:     'logos/tesco.jpg',
-    caris:     'logos/caris.jpg'
-    // add further entries here, for example:
-    // letsdefend: 'logos/letsdefend.jpg',
+     The current logos are embedded directly in this file, so they render with no
+     network request, no folder, and no dependence on filenames. To add another
+     organisation later, drop any square image into the /logos/ folder: the code
+     below looks it up by name, ignoring case, punctuation and extra words, so
+     "the_co_op_group_logo.jpg" would resolve for data-org="coop". Anything it
+     cannot find falls back to a monogram, so a slot is never blank. */
+  var LOGO_DATA = {
+    middlesex: 'data:image/jpeg;base64,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',
+    google: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBAUEBAYFBQUGBgYHCQ4JCQgICRINDQoOFRIWFhUSFBQXGiEcFxgfGRQUHScdHyIjJSUlFhwpLCgkKyEkJST/2wBDAQYGBgkICREJCREkGBQYJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCT/wAARCABgAGADASIAAhEBAxEB/8QAHAAAAQQDAQAAAAAAAAAAAAAAAAEEBgcDBQgC/8QAOhAAAQMDAgIGBwcDBQAAAAAAAQACAwQFEQYhMUEHEiJRYXEXI1KBkcHRExYyVWKSsUWToUJjc6Lx/8QAGwEAAQUBAQAAAAAAAAAAAAAAAAEEBQYHAwL/xAAvEQABAwMBBQYGAwAAAAAAAAABAAIDBAURMQYSIUFRExUzcYHRIjJSYaHBQpGx/9oADAMBAAIRAxEAPwDqlCEIQhCEEjvQhCTO+NkyuF5t9pj69dWQUzePrHgE+Q5qOz9KulYHYFe6XxiiJC5ukY35iE5ho55vCYT5AqYZSBRGn6VNLVDg015iP+7GWhSSgutDco/tKKrgqGY3MbwcfRK2RrvlKSajnh8VhHmE7QhC9puhCEIQhCEHghC8vc1jS5zgABkk8lWGs+k+WN76KwkDGz6sjOT+gfMrba9vUj2m10ryG4zM4c/0/VVjW0JGds4VTuF/YJjTwnTUq3WC0RPxPUjPQe60VbU1NdO6eqnlnlccl8ji4596w+a39o0ldNR1Rht9OXBp7cr9mM8z8gpzQdCEfUBr7tIX82wMAA954/BdaeGWdu+B6q5VF5oqICN7gD0HL+lVQB79k6oa2qt07Z6Ookp5WnIdG4gqyq/oSa1hdb7q7rjg2ePY+8Hb4KE1Wjb5R3aK1SULzUTHEXV3Y8cyDwwngppGHiFyivVDVtIDh5Hh/qsbQPSPPeKiO03OIvqXD1c8bNn49oDh58FYgUZ0Xoym0rRf6Zq6Ueunx/1b3D+VJhsVLxhwaA48Vmlzkp31DnUzcNSoRkIXRR6FgrakUtLLMT+BpKzFanU0hZaXj2nNamVxn7ClklHIErpCzfka3qVBalhqJHyvOXvJcSe9N6TT5u9dHSsy1rj2ney3mU/LQpHo+naHVE+N9mj+fosdsUDqyvZG86nJVsnq3U8JczXkt3bbZTWqkjpaSJscbBjA5+J8U75I5LFVFzKaV7ThzWEg92y21jAAGt0VQe8klzuJWQndeSxpcHEDI4HuXPHpI1Wf6xL+0fRHpH1X+cTftH0VnGy9T9Q/PsoTvyEciuiQUuc81zr6SNV/nE37R9EeknVbQSbvLtv+EfRB2XqfqH59knfkPQrorilCa2uoNXbaWoce1LCx58y0H5p0FWnDBwpoHIykPBanU7OvaZD7LmuW2wVgraYVdJLA7g9pCZXGAz0skQ/kCF1hfuSB3RV2XgKRaMqmufUQZ7WzwO8cD8lD6uZ1NLJFJ2ZGEtIPIhNqHUUlnuMdWztBh7bfabzCx2xTOoq9kjxwBwf2pi41cZjLSdVcaw1gLqSZrQSSxwAHPZYbZdKW7UkdXSSiSJ42I/g+Kdk7LbY3hwD28QoE4cOC5k+6t+P9GuH9ko+6t/8Aya4f2SumgEyvN3o7HbZ6+tlEcELcuPf3AeJ4BWxu1E5w0MCgn2SJoLnP4LmOqpKihmMFVDJBM3BMcjcOGd9wsRHWBaOJ2T293aW+XequMow6okLurn8I5D3BZ9LWt171BQUDASJJgXEcmjcn4BW0VOIO0k1AyVXGhskm6w5GV0dZYzDZ6GJwwWU8bT7mBPgvLdgABgd3cvQWUuOXErQWjAwhBQhIlVf9IlgkY03ekYS0DFQ0cv1/IqsqmpJzuui3Rh7S1wBBGCDzVY6y6MJHvkrbEG4PadSE4/Yfl/4qfdNnQ6c1MA11H7UbcmTGPMfH7KB2jVdz05Uma3z9UOPbifux/mPnxU3oem6PqAV1peHAbuhkBBPkeHxVY11NUUU7oaqCWCVpwWSNLT/lNlKURfBGGKi98VdM4hjsfYq167pwjEbhQ2mRzyNnTSAAHyHH4qutS6tu2qJxJcKjMbTlkLOzGzyHf4ndawheqakqK6dsFJBLPK44DI2lxJ8gp+31GH7xTaputZV/A52R0CbZx4K5+h7R8lBTPvtbEWTVLerTtcN2x+17+XgPFMdC9ET2TR3HUTG4bh0dHx3/AFnn5fHuVstb1RgbAclNV11L4uwZpzVosFpkZieoGDyCUbJUmClAUCFbUIQhKhCQhKhCExr7Nb7rH9nW0cFQ3GPWMB/zyUeqOinSs5yKB0PhFK5oUvwjC8loOoTaWkgl8RgPoohB0VaVhOTQOm/5ZXOUht9lt9pZ1KGjgpm4x6tgBPmeJT7CEoAGiIqSCLw2AeiTCXmjCEqcoQhCEL//2Q==',
+    coop: 'data:image/jpeg;base64,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',
+    tesco: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBAUEBAYFBQUGBgYHCQ4JCQgICRINDQoOFRIWFhUSFBQXGiEcFxgfGRQUHScdHyIjJSUlFhwpLCgkKyEkJST/2wBDAQYGBgkICREJCREkGBQYJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCT/wAARCABgAGADASIAAhEBAxEB/8QAGwABAAIDAQEAAAAAAAAAAAAAAAUHAQQGAwj/xAAyEAABBAIBAwEGAwkBAAAAAAABAAIDBAURBgcSITETMkFRYXEigZEUFiMlQlKhscHh/8QAGQEBAAMBAQAAAAAAAAAAAAAAAAECAwUE/8QAKREAAgEDAgUDBQEAAAAAAAAAAAECAxEhEkEEBSIxURNhoSNxgZGx8P/aAAwDAQACEQMRAD8A+qUREAREQBERAEREAREQBERAEREARNptAERNoAibTaAImwiAIiIAh9EQ+iAgc3zbj/HLjKeVycVWxJH7VkbmuJc3ZG/APjYK0qvVDh92eCCDOV5JJ3iOMBr/AMbidAA61tTeVrQPp2ZXwxukEDm9zmgkDR8b/NcJ0Lhhn4JGZYmSEW5CC9oJB8LJykp6TqUaHDy4WVaSldNLut7+xOzdVeG13TNlzsDDA5zJdsfphBIIJ7foVvZbnXHsJJFDcyUbZpmCVkTGue8sP9WmgkD7qqunl+Olk8++3nsPQoDKymxXusaXzt273XOd4/Q+imM9j4J+WWM5xfmWNx9+WvG2arba0tcztHaW93wI0fQqiqycb/7+nvq8q4aFf0m3ZLvtfGH04++SxMVy7B5mjPfpZKCStWd2zPcSwREDend2tKOr9TOJ2rMcEOYjeZJBEx4jf2OeToN7ta3tVDnc3n+U8LyjLFatK3HZCJt2zQZpluIB2z48ENIad/IjatfE8j4lJx2nHSu46OJ8bI4YiW9zZPAa3t9e4HSRquXYy4nlUKENUk227YadsJ5dt74wjey3PuN4W6aNzJxttN8uhja6R7fuGg6Ujg+Q4nkVb9qxN6G5CDoujd6H6j1Cq7o/exuEsZ+jn5IamcNxzpTacGvezXwLvUb2fzXp0/DL/VbkOSwY/khj7XyRjUUkv4fd+BOw4/r81Majdn5HEcrpQVSKb6EnfZ9u37xllvoseVlbnBCH0REByPPOUZbA144cNxW7yCxPvvYwEQsZ6Hudo7J+QH314UTwTOcmmhsuv8Gr8cx0IdIY4STNM/XoyINGz4Hn/asIt366Kdv0C1U4qGnSr+dzJxnqupO3jYpaXN8huZJ0dXotV9nJKQyW21rCQT7zz2ED5nyfupvm09mhHTjh6aVuQ5Ext9s+OuDXgGvDGvLdu19h/wAVndn0Cdnz8qXVg2uhW/JZetZ/UdzgeGZ3kZxNmfKcJiwdGsw+yp1SXzzO+TYw0AD6n/1crTy/JbebY6t0Zo1ZHy7batdrDH595zuzwfj4/JXR2n6IGa+ARVYXbcF84+SLVdqj9/crPqBl8jHarV6/Tb957DWAzWJIf4LD/axxaS79AF0HTy9n72PLstxilxyu3xBVik28/MlvaA0f5XWdmzvQWQNKrnHTpUVfyTapfM2142MoiLMuEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAf//Z',
+    caris: 'data:image/jpeg;base64,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'
+  };
+
+  var LOGO_DIR = 'logos/';
+  var LOGO_EXT = ['.jpg', '.jpeg', '.png', '.svg', '.webp'];
+
+  /* filenames as they currently sit in the repo, tried before any lookup */
+  var LOGO_FILES = {
+    middlesex: 'middlesex_university_logo.jpg',
+    google:    'google_logo.jpg',
+    coop:      'the_co_op_group_logo.jpg',
+    tesco:     '_tesco_logo.jpg',
+    caris:     'carisharingey_logo.jpg'
+  };
+
+  /* alternative spellings, to help match future files */
+  var LOGO_ALIASES = {
+    coop:       ['coop', 'cooperative', 'cooperativegroup'],
+    tesco:      ['tesco'],
+    caris:      ['caris', 'carisharingey', 'haringey'],
+    middlesex:  ['middlesex', 'mdx'],
+    google:     ['google'],
+    letsdefend: ['letsdefend'],
+    rcj:        ['rcj', 'reimagining', 'criminaljustice'],
+    lab:        ['lab', 'homelab', 'splunk']
   };
 
   (function mountLogos() {
-    Array.prototype.forEach.call(document.querySelectorAll('[data-org]'), function (el) {
+    var slots = Array.prototype.slice.call(document.querySelectorAll('[data-org]'));
+    if (!slots.length) return;
+
+    function show(el, url) {
+      var img = new Image();
+      img.alt = (el.getAttribute('data-org-name') || el.getAttribute('data-org')) + ' logo';
+      img.onload = function () { el.innerHTML = ''; el.appendChild(img); };
+      img.src = url;
+    }
+
+    slots.forEach(function (el) {
       var key = el.getAttribute('data-org');
       var label = el.getAttribute('data-org-label') || key.slice(0, 2).toUpperCase();
-      var src = LOGOS[key];
-      // Draw the monogram first, so a slot is never blank while an image loads,
-      // and never blank at all if the file is missing or the request stalls.
-      el.innerHTML = '<span class="mono">' + label + '</span>';
-      if (!src) return;
-      var img = new Image();
-      img.alt = (el.getAttribute('data-org-name') || key) + ' logo';
-      img.loading = 'lazy';
-      img.onload = function () { el.innerHTML = ''; el.appendChild(img); };
-      img.src = src;               // on failure the monogram simply stays
+      el.innerHTML = '<span class="mono">' + label + '</span>';   // never blank
+
+      /* 1. embedded image: instant, cannot fail */
+      if (LOGO_DATA[key]) {
+        var img = new Image();
+        img.alt = (el.getAttribute('data-org-name') || key) + ' logo';
+        img.src = LOGO_DATA[key];
+        el.innerHTML = '';
+        el.appendChild(img);
+        return;
+      }
+
+      /* 2. known filename in the logos folder */
+      if (LOGO_FILES[key]) show(el, LOGO_DIR + encodeURIComponent(LOGO_FILES[key]));
+
+      /* 3. plain path guesses, for a file named after the key */
+      var i = 0;
+      (function next() {
+        if (i >= LOGO_EXT.length || el.querySelector('img')) return;
+        var url = LOGO_DIR + key + LOGO_EXT[i++];
+        var probe = new Image();
+        probe.onload = function () { if (!el.querySelector('img')) show(el, url); };
+        probe.onerror = next;
+        probe.src = url;
+      })();
     });
+
+    /* 4. finally, list the folder so any new file is matched by name */
+    if (!window.fetch) return;
+    var pending = slots.filter(function (el) { return !LOGO_DATA[el.getAttribute('data-org')]; });
+    if (!pending.length) return;
+
+    function norm(s) { return String(s).toLowerCase().replace(/[^a-z0-9]/g, ''); }
+
+    fetch('https://api.github.com/repos/ugartificalg8djpg/ugartificalg8djpg.github.io/contents/logos', {
+      headers: { 'Accept': 'application/vnd.github+json' }
+    }).then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (files) {
+        if (!Array.isArray(files)) return;
+        var names = files.filter(function (f) {
+          return f.type === 'file' && /\.(jpe?g|png|svg|webp)$/i.test(f.name);
+        }).map(function (f) { return f.name; });
+        pending.forEach(function (el) {
+          if (el.querySelector('img')) return;
+          var key = el.getAttribute('data-org');
+          var words = (LOGO_ALIASES[key] || [key]).map(norm);
+          var hit = null;
+          names.forEach(function (n) {
+            if (hit) return;
+            var base = norm(n.replace(/\.[a-z0-9]+$/i, ''));
+            for (var w = 0; w < words.length; w++) {
+              if (base.indexOf(words[w]) !== -1 || words[w].indexOf(base) !== -1) { hit = n; return; }
+            }
+          });
+          if (hit) show(el, LOGO_DIR + encodeURIComponent(hit));
+        });
+      })
+      .catch(function () { /* offline or rate limited: embedded logos stand */ });
   })();
 
   /* ---------- live SOC console: triage + log stream ---------- */
