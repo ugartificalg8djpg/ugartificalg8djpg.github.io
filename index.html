@@ -119,6 +119,7 @@ tailwind.config = {
   .c-ok{color:#4ADE80}.c-key{color:#8B7CF6}.c-dim{color:#6B7A99}.c-str{color:#C3E88D}
 
 
+
   /* ---------- Organisation logos ----------
      Drop a square image into /logos/ and register it in the LOGOS map in the
      script below. Any entry without a registered logo falls back to a monogram,
@@ -202,10 +203,15 @@ tailwind.config = {
       </div>
       <p class="t-label mt-3">GRC &amp; Security Analyst · Graduate 2026</p>
 
-      <a href="https://github.com/ugartificalg8djpg/Resume/raw/main/Ugonna_CV_GRC_SOC_IT_2026_09_16.pdf" target="_blank" rel="noopener"
-         class="mt-4 flex items-center justify-center gap-2 bg-ink px-4 py-2.5 font-mono text-[.6875rem] uppercase tracking-[.14em] text-bg transition-colors hover:bg-accent">
-        <i data-lucide="download" class="h-3.5 w-3.5"></i> Resume
-      </a>
+      <div class="group relative mt-4">
+        <a href="Ugonna%20CV%20GRC%20SOC%20IT%202026.09.16%20(1).pdf" target="_blank" rel="noopener"
+           class="flex w-full items-center justify-center gap-2 bg-ink px-4 py-2.5 font-mono text-[.6875rem] uppercase tracking-[.14em] text-bg transition-colors hover:bg-accent">
+          <i data-lucide="download" class="h-3.5 w-3.5"></i> Resume
+        </a>
+        <span class="pointer-events-none absolute left-1/2 top-full z-20 mt-1.5 hidden -translate-x-1/2 whitespace-nowrap border border-line bg-panel px-2.5 py-1 group-hover:block">
+          <span id="cvTip" class="t-meta">Latest version</span>
+        </span>
+      </div>
 
       <!-- Education -->
       <div class="mt-6 border-t border-line pt-4">
@@ -1157,6 +1163,103 @@ udp port 53 unreachable length 150</pre>
     start();
   })();
 
+
+  /* ---------- Resume link resolver ----------
+     The CV lives in this repository beside index.html. Rather than hard-coding a
+     filename, ask GitHub what PDFs are actually in the repo and link to the most
+     recent one, so uploading a new CV needs no change to this page. Falls back to
+     a fixed list if the API is unreachable, and caches the answer for six hours. */
+  (function resumeLink() {
+    var OWNER = 'ugartificalg8djpg';
+    var REPO  = 'ugartificalg8djpg.github.io';
+    var FALLBACKS = [
+      'Ugonna%20CV%20GRC%20SOC%20IT%202026.09.16%20(1).pdf',
+      'https://github.com/ugartificalg8djpg/Resume/raw/main/Ugonna_CV_GRC_SOC_IT_2026_09_16.pdf'
+    ];
+    var CACHE_KEY = 'cvLink', CACHE_HOURS = 6;
+
+    var links = Array.prototype.filter.call(
+      document.querySelectorAll('a[href$=".pdf"], a[href*=".pdf"]'),
+      function (a) { return /resume|cv|download/i.test(a.textContent + ' ' + (a.getAttribute('href') || '')); }
+    );
+    if (!links.length) return;
+
+    function apply(url, label) {
+      links.forEach(function (a) {
+        a.setAttribute('href', url);
+        a.setAttribute('download', '');          // save rather than open in a viewer
+      });
+      var tip = document.getElementById('cvTip');
+      if (tip && label) tip.textContent = label;
+    }
+
+    /* pick the best PDF: prefer names that look like a CV, then the latest date
+       found in the filename, then the most recently named file */
+    function pick(files) {
+      var pdfs = files.filter(function (f) {
+        return f.type === 'file' && /\.pdf$/i.test(f.name);
+      });
+      if (!pdfs.length) return null;
+      var cvs = pdfs.filter(function (f) { return /cv|resume/i.test(f.name); });
+      var pool = cvs.length ? cvs : pdfs;
+      pool.forEach(function (f) {
+        var m = f.name.match(/(20\d{2})[._-]?(\d{2})[._-]?(\d{2})/);
+        f._key = m ? (m[1] + m[2] + m[3]) : '00000000';
+      });
+      pool.sort(function (a, b) {
+        if (a._key !== b._key) return a._key < b._key ? 1 : -1;   // newest date first
+        return a.name < b.name ? 1 : -1;                          // then latest name
+      });
+      return pool[0];
+    }
+
+    function prettyDate(name) {
+      var m = name.match(/(20\d{2})[._-]?(\d{2})[._-]?(\d{2})/);
+      if (!m) return 'Latest version';
+      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      var mi = parseInt(m[2], 10) - 1;
+      return 'Updated ' + parseInt(m[3], 10) + ' ' + (months[mi] || '') + ' ' + m[1];
+    }
+
+    /* cached answer from a previous visit */
+    try {
+      var raw = localStorage.getItem(CACHE_KEY);
+      if (raw) {
+        var c = JSON.parse(raw);
+        if (c && c.url && (Date.now() - c.at) < CACHE_HOURS * 3600 * 1000) {
+          apply(c.url, c.label);
+        }
+      }
+    } catch (err) { /* storage unavailable, carry on */ }
+
+    if (!window.fetch) return;
+
+    fetch('https://api.github.com/repos/' + OWNER + '/' + REPO + '/contents/', {
+      headers: { 'Accept': 'application/vnd.github+json' }
+    }).then(function (r) {
+      if (!r.ok) throw new Error('listing unavailable');
+      return r.json();
+    }).then(function (files) {
+      if (!Array.isArray(files)) throw new Error('unexpected response');
+      var best = pick(files);
+      if (!best) throw new Error('no pdf found');
+      var url = encodeURIComponent(best.name);   // same origin, so no rate limit on the download itself
+      var label = prettyDate(best.name);
+      apply(url, label);
+      try { localStorage.setItem(CACHE_KEY, JSON.stringify({ url: url, label: label, at: Date.now() })); } catch (err) {}
+    }).catch(function () {
+      /* API unreachable or rate limited: walk the fixed list instead */
+      (function tryNext(i) {
+        if (i >= FALLBACKS.length) return;
+        var url = FALLBACKS[i];
+        if (/^https?:/i.test(url)) { apply(url); return; }
+        fetch(url, { method: 'HEAD' }).then(
+          function (r) { if (r && r.ok) apply(url); else tryNext(i + 1); },
+          function () { tryNext(i + 1); }
+        );
+      })(0);
+    });
+  })();
 
   /* ---------- Organisation logos ----------
      To add a logo later: save a square image as logos/<key>.jpg (or .png, .svg)
