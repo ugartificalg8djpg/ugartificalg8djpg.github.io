@@ -218,17 +218,36 @@ tailwind.config = {
         <p class="t-label">Education</p>
         <div class="mt-2 flex items-start gap-2.5">
           <span class="org" data-org="middlesex" data-org-label="MU" data-org-name="Middlesex University"></span>
-          <div class="min-w-0">
+          <div class="min-w-0 flex-1">
             <p class="t-item text-ink">Middlesex University, London</p>
             <p class="t-body mt-0.5">BSc Sociology with Criminology</p>
             <p class="t-meta mt-1">First Class · Graduated 2026</p>
+
+            <!-- media attached to the degree, the way LinkedIn nests it -->
+            <div class="mt-2.5 border-l border-line pl-3">
+              <button data-modal="mAcademic" class="row flex w-full items-center justify-between gap-2 py-1.5 text-left">
+                <span class="flex min-w-0 items-center gap-2">
+                  <svg class="h-3 w-3 shrink-0 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path>
+                  </svg>
+                  <span class="t-body truncate">Academic work</span>
+                </span>
+                <span class="t-meta shrink-0 text-accent">4 docs</span>
+              </button>
+              <button data-modal="mTalk" class="row flex w-full items-center justify-between gap-2 py-1.5 text-left">
+                <span class="flex min-w-0 items-center gap-2">
+                  <svg class="h-3 w-3 shrink-0 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+                    <rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M10 9l5 3-5 3z" fill="currentColor" stroke="none"></path>
+                  </svg>
+                  <span class="t-body truncate">AI &amp; Cybercrime</span>
+                </span>
+                <span class="t-meta shrink-0 text-accent">Video</span>
+              </button>
+            </div>
           </div>
         </div>
-        <button data-modal="mAcademic" class="row mt-3 flex w-full items-center justify-between py-2 text-left">
-          <span class="t-body">Academic work</span>
-          <span class="t-meta text-accent">4 documents ·&nbsp;view</span>
-        </button>
-        <p class="t-meta mt-3 text-accent">Google Cybersecurity Professional Certificate</p>
+
+        <p class="t-meta mt-4 text-accent">Google Cybersecurity Professional Certificate</p>
         <button data-modal="mCerts" class="t-meta mt-1 text-body underline-offset-2 hover:text-accent hover:underline">3 certificates · view</button>
       </div>
 
@@ -1076,6 +1095,58 @@ udp port 53 unreachable length 150</pre>
   </div>
 </div>
 
+
+<!-- AI & Cybercrime presentation -->
+<div id="mTalk" class="modal fixed inset-0 z-[100] items-end justify-center bg-black/75 p-0 backdrop-blur-sm md:items-center md:p-6" role="dialog" aria-modal="true">
+  <div class="modal-panel flex max-h-[90vh] w-full max-w-[min(56rem,94vw)] flex-col border border-line bg-panel">
+    <div class="flex items-start justify-between gap-4 border-b border-line px-6 py-4">
+      <div>
+        <p class="t-label text-accent">Presentation &middot; Middlesex University</p>
+        <h3 class="t-sec mt-1 text-ink" style="font-size:1.1rem">AI &amp; Cybercrime</h3>
+      </div>
+      <button class="modal-close flex h-9 w-9 shrink-0 items-center justify-center border border-white/35 bg-white/10 text-white transition-colors hover:border-white hover:bg-white hover:text-bg" aria-label="Close">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"></line><line x1="19" y1="5" x2="5" y2="19"></line></svg>
+      </button>
+    </div>
+
+    <div class="modal-body overflow-y-auto px-6 py-5">
+      <!-- The player is only created once the poster is clicked, so nothing loads
+           from YouTube (and no cookies are set) unless the visitor chooses to watch. -->
+      <div id="talkFrame" class="relative aspect-video w-full border border-line bg-bg">
+        <button id="talkPlay" class="group absolute inset-0 flex flex-col items-center justify-center gap-3" aria-label="Play the presentation">
+          <img src="https://i.ytimg.com/vi/3iDwg8fpR4Q/hqdefault.jpg" alt=""
+               class="absolute inset-0 h-full w-full object-cover opacity-45 transition-opacity group-hover:opacity-60" loading="lazy">
+          <span class="relative flex h-14 w-14 items-center justify-center border border-accent bg-bg/80 backdrop-blur transition-colors group-hover:bg-accent">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" class="ml-0.5 text-accent transition-colors group-hover:text-bg" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>
+          </span>
+          <span class="relative font-mono text-[10px] uppercase tracking-[.16em] text-ink">Play &middot; 18 min</span>
+        </button>
+      </div>
+
+      <p class="t-body mt-4">A recorded presentation on how artificial intelligence is changing cybercrime: where it lowers the barrier to entry for offenders, how it scales social engineering, and what that means for the people on the receiving end rather than only for the technology.</p>
+
+      <div class="mt-4 grid gap-3 sm:grid-cols-2">
+        <div class="border border-line p-3.5">
+          <p class="t-label text-accent">Why it sits in this portfolio</p>
+          <p class="t-body mt-1.5">Explaining a technical subject clearly to a non-technical audience is the part of GRC work that most often decides whether a finding gets acted on. This is that skill on record rather than asserted on a CV.</p>
+        </div>
+        <div class="border border-line p-3.5">
+          <p class="t-label text-accent">Where it connects</p>
+          <p class="t-body mt-1.5">The criminology degree asks why offending happens and what conditions enable it. Applied to AI assisted fraud and phishing, that is the same reasoning behind user awareness controls and phishing resilience.</p>
+        </div>
+      </div>
+
+      <div class="mt-4 flex flex-wrap items-center gap-2">
+        <a href="https://youtu.be/3iDwg8fpR4Q" target="_blank" rel="noopener"
+           class="border border-line px-3 py-1.5 font-mono text-[10px] uppercase tracking-[.12em] text-body transition-colors hover:border-accent hover:text-accent">
+          Watch on YouTube &#8599;
+        </a>
+        <span class="t-meta text-faint">Unlisted &middot; viewable by anyone with the link</span>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 (function () {
   'use strict';
@@ -1465,6 +1536,27 @@ udp port 53 unreachable length 150</pre>
       .catch(function () { /* offline or rate limited: embedded logos stand */ });
   })();
 
+
+
+  /* ---------- Presentation player ----------
+     The YouTube iframe is built only when the poster is clicked, so the page
+     loads nothing from YouTube (and sets no cookies) unless someone watches. */
+  (function talkPlayer() {
+    var btn = document.getElementById('talkPlay');
+    var frame = document.getElementById('talkFrame');
+    if (!btn || !frame) return;
+    btn.addEventListener('click', function () {
+      var f = document.createElement('iframe');
+      f.src = 'https://www.youtube-nocookie.com/embed/3iDwg8fpR4Q?autoplay=1&rel=0&modestbranding=1';
+      f.title = 'AI and Cybercrime presentation';
+      f.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture';
+      f.allowFullscreen = true;
+      f.className = 'absolute inset-0 h-full w-full';
+      f.setAttribute('frameborder', '0');
+      frame.innerHTML = '';
+      frame.appendChild(f);
+    });
+  })();
 
   /* ---------- Academic documents ----------
      Files live in the /Middlesex/ folder of this repo. Filenames contain spaces
