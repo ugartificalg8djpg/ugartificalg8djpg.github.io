@@ -318,6 +318,7 @@ tailwind.config = {
       <button data-modal="mBrute" class="row flex w-full items-center gap-3 px-3 py-2.5 text-left"><span class="t-meta w-5 shrink-0">05</span><span class="min-w-0 flex-1"><span class="t-meta block">Incident report · OS hardening</span><span class="t-item mt-0.5 block truncate text-ink">Brute Force Attack &amp; Malicious Redirect</span><span class="mt-1.5 flex flex-wrap gap-1"><span class="chip">Access control</span><span class="chip">tcpdump</span><span class="chip">MFA</span></span></span><span class="arrow t-meta shrink-0 text-accent">&#8599;</span></button>
       <button data-modal="mShark" class="row flex w-full items-center gap-3 px-3 py-2.5 text-left"><span class="t-meta w-5 shrink-0">06</span><span class="min-w-0 flex-1"><span class="t-meta block">Network traffic analysis</span><span class="t-item mt-0.5 block truncate text-ink">Wireshark DNS Outage Investigation</span><span class="mt-1.5 flex flex-wrap gap-1"><span class="chip">DNS</span><span class="chip">UDP/ICMP</span><span class="chip">Packet capture</span></span></span><span class="arrow t-meta shrink-0 text-accent">&#8599;</span></button>
       <button data-modal="mMeridian" class="row flex w-full items-center gap-3 px-3 py-2.5 text-left"><span class="t-meta w-5 shrink-0">07</span><span class="min-w-0 flex-1"><span class="t-meta block">End to end internal audit · healthcare</span><span class="t-item mt-0.5 block truncate text-ink">Meridian Health Partners Controls Audit</span><span class="mt-1.5 flex flex-wrap gap-1"><span class="chip">NIST CSF</span><span class="chip">Risk register</span><span class="chip">Roadmap</span></span></span><span class="arrow t-meta shrink-0 text-accent">&#8599;</span></button>
+      <button data-modal="mLinux" class="row flex w-full items-center gap-3 px-3 py-2.5 text-left"><span class="t-meta w-5 shrink-0">08</span><span class="min-w-0 flex-1"><span class="t-meta block">Access control · Linux</span><span class="t-item mt-0.5 block truncate text-ink">File Permissions Audit &amp; Remediation</span><span class="mt-1.5 flex flex-wrap gap-1"><span class="chip">Least privilege</span><span class="chip">chmod</span><span class="chip">Linux</span></span></span><span class="arrow t-meta shrink-0 text-accent">&#8599;</span></button>
     </div>
 
     <!-- Experience -->
@@ -1185,6 +1186,73 @@ udp port 53 unreachable length 150</pre>
   </div>
 </div>
 
+
+<!-- Linux file permissions -->
+<div id="mLinux" class="modal fixed inset-0 z-[100] items-end justify-center bg-black/75 p-0 backdrop-blur-sm md:items-center md:p-6" role="dialog" aria-modal="true">
+  <div class="modal-panel flex max-h-[90vh] w-full max-w-[min(56rem,94vw)] flex-col border border-line bg-panel">
+    <div class="flex items-start justify-between gap-4 border-b border-line px-6 py-4">
+      <div>
+        <p class="t-label text-accent">Access control &middot; Linux</p>
+        <h3 class="t-sec mt-1 text-ink" style="font-size:1.1rem">File Permissions Audit &amp; Remediation</h3>
+      </div>
+      <button class="modal-close flex h-9 w-9 shrink-0 items-center justify-center border border-white/35 bg-white/10 text-white transition-colors hover:border-white hover:bg-white hover:text-bg" aria-label="Close">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"></line><line x1="19" y1="5" x2="5" y2="19"></line></svg>
+      </button>
+    </div>
+
+    <div class="modal-body overflow-y-auto px-6 py-5">
+
+      <p class="t-label">What the task was</p>
+      <p class="t-body mt-1.5">A research team&rsquo;s shared project directory had drifted out of line with the organisation&rsquo;s access policy. The job was to read the existing permissions, decide which ones were actually authorised, and correct only what needed correcting.</p>
+
+      <p class="t-label mt-5">How the permission string is read</p>
+      <div class="mt-2 grid gap-px border border-line bg-line sm:grid-cols-4">
+        <div class="bg-bg p-3"><p class="font-mono text-[13px] text-accent">d</p><p class="t-meta mt-1">Type</p><p class="t-body mt-0.5" style="font-size:12px">d directory, - file</p></div>
+        <div class="bg-bg p-3"><p class="font-mono text-[13px] text-ink">rwx</p><p class="t-meta mt-1">User</p><p class="t-body mt-0.5" style="font-size:12px">The owner</p></div>
+        <div class="bg-bg p-3"><p class="font-mono text-[13px] text-ink">rwx</p><p class="t-meta mt-1">Group</p><p class="t-body mt-0.5" style="font-size:12px">research_team</p></div>
+        <div class="bg-bg p-3"><p class="font-mono text-[13px] text-ink">rwx</p><p class="t-meta mt-1">Other</p><p class="t-body mt-0.5" style="font-size:12px">Everyone else</p></div>
+      </div>
+      <p class="t-body mt-2">On a file, <span class="font-mono text-accent">x</span> means run it. On a directory it means enter it, which is why removing <span class="font-mono text-accent">x</span> rather than <span class="font-mono text-accent">r</span> is what actually locked the group out of <span class="font-mono">drafts</span>.</p>
+
+      <div class="mt-2 border border-line"><div class="flex items-center justify-between border-b border-line bg-bg/60 px-3 py-1.5"><span class="t-label">Read the directory, hidden files included</span><button class="copy-btn font-mono text-[10px] uppercase tracking-[.12em] text-accent hover:text-white">Copy</button></div><pre class="code-pre overflow-x-auto px-3 py-2.5 font-mono text-[11px] leading-relaxed text-[#C8D4E8]">ls -la ~/projects</pre></div>
+
+      <p class="t-label mt-5">What changed, and why</p>
+      <div class="mt-2 overflow-x-auto border border-line p-3">
+        <table class="w-full border-collapse text-left">
+          <thead><tr class="border-b border-line">
+            <th class="pb-2 pr-3 t-label">File</th><th class="pb-2 pr-3 t-label">Before</th>
+            <th class="pb-2 pr-3 t-label">Command</th><th class="pb-2 pr-3 t-label">After</th><th class="pb-2 t-label">Reason</th>
+          </tr></thead>
+          <tbody><tr class="border-b border-line/50 last:border-0"><td class="py-2 pr-3 align-top font-mono text-[11px] text-ink">project_k.txt</td><td class="py-2 pr-3 align-top font-mono text-[11px] text-faint">-rw-rw-rw-</td><td class="py-2 pr-3 align-top font-mono text-[11px] text-accent">chmod o-w</td><td class="py-2 pr-3 align-top font-mono text-[11px] text-[#4ADE80]">-rw-rw-r--</td><td class="py-2 align-top text-[12px] leading-snug text-body">Other users could modify the file. Write access for everyone was never authorised.</td></tr><tr class="border-b border-line/50 last:border-0"><td class="py-2 pr-3 align-top font-mono text-[11px] text-ink">.project_x.txt</td><td class="py-2 pr-3 align-top font-mono text-[11px] text-faint">-rw--w----</td><td class="py-2 pr-3 align-top font-mono text-[11px] text-accent">chmod ug=r</td><td class="py-2 pr-3 align-top font-mono text-[11px] text-[#4ADE80]">-r--r-----</td><td class="py-2 align-top text-[12px] leading-snug text-body">Archived file. User and group read it, nobody writes to it.</td></tr><tr class="border-b border-line/50 last:border-0"><td class="py-2 pr-3 align-top font-mono text-[11px] text-ink">drafts/</td><td class="py-2 pr-3 align-top font-mono text-[11px] text-faint">drwx--x---</td><td class="py-2 pr-3 align-top font-mono text-[11px] text-accent">chmod g-x</td><td class="py-2 pr-3 align-top font-mono text-[11px] text-[#4ADE80]">drwx------</td><td class="py-2 align-top text-[12px] leading-snug text-body">Execute on a directory lets you enter it. Removing x was what actually revoked group access.</td></tr><tr class="border-b border-line/50 last:border-0"><td class="py-2 pr-3 align-top font-mono text-[11px] text-ink">project_m.txt</td><td class="py-2 pr-3 align-top font-mono text-[11px] text-faint">-rw-r-----</td><td class="py-2 pr-3 align-top font-mono text-[11px] text-accent">chmod g-r</td><td class="py-2 pr-3 align-top font-mono text-[11px] text-[#4ADE80]">-rw-------</td><td class="py-2 align-top text-[12px] leading-snug text-body">Already compliant. This change was unnecessary and removed access the team needed.</td></tr><tr class="border-b border-line/50 last:border-0"><td class="py-2 pr-3 align-top font-mono text-[11px] text-ink">project_r.txt, project_t.txt</td><td class="py-2 pr-3 align-top font-mono text-[11px] text-faint">-rw-rw-r--</td><td class="py-2 pr-3 align-top font-mono text-[11px] text-accent">none</td><td class="py-2 pr-3 align-top font-mono text-[11px] text-[#4ADE80]">-rw-rw-r--</td><td class="py-2 align-top text-[12px] leading-snug text-body">Already met the policy. Left alone.</td></tr></tbody>
+        </table>
+      </div>
+
+      <div class="mt-2 border border-line"><div class="flex items-center justify-between border-b border-line bg-bg/60 px-3 py-1.5"><span class="t-label">The changes that were required</span><button class="copy-btn font-mono text-[10px] uppercase tracking-[.12em] text-accent hover:text-white">Copy</button></div><pre class="code-pre overflow-x-auto px-3 py-2.5 font-mono text-[11px] leading-relaxed text-[#C8D4E8]">chmod o-w  ~/projects/project_k.txt
+chmod ug=r ~/projects/.project_x.txt
+chmod g-x  ~/projects/drafts</pre></div>
+
+      <p class="t-label mt-5">What I got wrong, and what it taught me</p>
+      <ul class="mt-2 space-y-2">
+        <li class="t-body flex gap-2"><svg class="pz-bullet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#pz"/></svg><span><span class="text-ink">Removed access that was authorised.</span> Running <span class="font-mono text-accent">g-r</span> on project_m.txt stripped read access the team legitimately needed. Over-restricting is a failure too: it stops people doing their job and gets controls worked around.</span></li>
+        <li class="t-body flex gap-2"><svg class="pz-bullet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#pz"/></svg><span><span class="text-ink">One wrong letter reversed the intent.</span> <span class="font-mono text-accent">g+w</span> instead of <span class="font-mono text-accent">g+r</span> granted exactly the write access the task existed to prevent.</span></li>
+        <li class="t-body flex gap-2"><svg class="pz-bullet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#pz"/></svg><span><span class="text-ink">A typo silently did nothing.</span> A misspelled filename returned <span class="font-mono">No such file or directory</span> and changed nothing. Without reading the output I would have recorded it as done.</span></li>
+        <li class="t-body flex gap-2"><svg class="pz-bullet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#pz"/></svg><span><span class="text-ink">Four commands should have been one.</span> <span class="font-mono text-accent">=</span> sets permissions to a known state, while <span class="font-mono text-accent">+</span> and <span class="font-mono text-accent">-</span> only adjust whatever is already there, so they need the starting state tracked.</span></li>
+      </ul>
+
+      <div class="mt-4 border-l-2 border-accent bg-accent/5 px-3 py-2.5">
+        <p class="t-label text-accent">Why this sits in a GRC portfolio</p>
+        <p class="t-body mt-1">Least privilege is a control before it is a command. This is the same work as an access review: establish who is authorised, compare against what is actually granted, correct the difference in both directions, and verify afterwards. The Botium audit found the identical gap at policy level, absent least privilege and separation of duties. This is what closing it looks like on a host.</p>
+      </div>
+
+      <p class="t-label mt-5">Project files</p>
+      <div id="linuxFiles" class="mt-2 space-y-1.5">
+        <p class="t-meta text-faint">Checking the Linux folder&hellip;</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <script>
 (function () {
   'use strict';
@@ -1594,6 +1662,53 @@ udp port 53 unreachable length 150</pre>
       frame.innerHTML = '';
       frame.appendChild(f);
     });
+  })();
+
+
+  /* ---------- Linux project files ----------
+     Lists whatever is in the /Linux/ folder of this repo, so dropping new files
+     in there makes them appear here with no change to this page. */
+  (function linuxFiles() {
+    var box = document.getElementById('linuxFiles');
+    if (!box) return;
+
+    function icon(name) {
+      if (/\.pdf$/i.test(name))  return 'PDF';
+      if (/\.(docx?|odt|rtf)$/i.test(name)) return 'DOC';
+      if (/\.(png|jpe?g|gif|webp)$/i.test(name)) return 'IMG';
+      if (/\.(sh|bash|py|txt|log|conf|md)$/i.test(name)) return 'TXT';
+      return 'FILE';
+    }
+
+    function render(names) {
+      if (!names.length) {
+        box.innerHTML = '<p class="t-meta text-faint">No files in the Linux folder yet.</p>';
+        return;
+      }
+      box.innerHTML = names.map(function (n) {
+        var pretty = n.replace(/\.[a-z0-9]+$/i, '').replace(/[_-]+/g, ' ');
+        return '<a href="Linux/' + encodeURIComponent(n) + '" target="_blank" rel="noopener" ' +
+          'class="row flex items-center justify-between gap-3 border border-line px-3 py-2 transition-colors hover:border-accent">' +
+          '<span class="flex min-w-0 items-center gap-2.5">' +
+          '<span class="shrink-0 border border-line px-1.5 py-0.5 font-mono text-[9px] tracking-wider text-accent">' + icon(n) + '</span>' +
+          '<span class="t-body truncate">' + pretty + '</span></span>' +
+          '<span class="t-meta shrink-0 text-accent">Open &#8599;</span></a>';
+      }).join('');
+    }
+
+    if (!window.fetch) { box.innerHTML = ''; return; }
+
+    fetch('https://api.github.com/repos/ugartificalg8djpg/ugartificalg8djpg.github.io/contents/Linux', {
+      headers: { 'Accept': 'application/vnd.github+json' }
+    }).then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (files) {
+        if (!Array.isArray(files)) { box.innerHTML = ''; return; }
+        var names = files.filter(function (f) {
+          return f.type === 'file' && f.name.charAt(0) !== '.';   /* skip .gitkeep */
+        }).map(function (f) { return f.name; }).sort();
+        render(names);
+      })
+      .catch(function () { box.innerHTML = ''; });   /* folder unreachable: say nothing */
   })();
 
   /* ---------- Academic documents ----------
