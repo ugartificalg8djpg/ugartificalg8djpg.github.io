@@ -55,6 +55,13 @@ tailwind.config = {
   .t-item  { font-family:"Space Grotesk",sans-serif; font-weight:600; font-size:.95rem; letter-spacing:-.018em; }
   .t-label { font-family:"JetBrains Mono",monospace; font-weight:500; font-size:.625rem; letter-spacing:.2em; text-transform:uppercase; color:#617087; }
   .t-meta  { font-family:"JetBrains Mono",monospace; font-size:.625rem; letter-spacing:.06em; color:#617087; font-variant-numeric:tabular-nums; }
+  /* project group headers: large and bold so each area reads as a section, not a caption */
+  .t-group { font-family:"Space Grotesk",sans-serif; font-weight:700; font-size:1.35rem; line-height:1.15; letter-spacing:-.025em; color:#F2F6FC; }
+  .grp-head { position:relative; background:linear-gradient(90deg,rgba(79,195,247,.10),rgba(79,195,247,0) 70%); }
+  .grp-head::before { content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:#4FC3F7; }
+  .grp-icon { display:flex; align-items:center; justify-content:center; width:2.5rem; height:2.5rem; flex-shrink:0;
+              border:1px solid rgba(79,195,247,.45); background:rgba(79,195,247,.08); }
+  .grp-sub  { font-family:Sora,sans-serif; font-weight:400; font-size:.78rem; color:#98A6BB; }
   .t-body  { font-family:Sora,sans-serif; font-weight:300; font-size:.8125rem; line-height:1.65; color:#98A6BB; }
   /* chips: rounded and soft, deliberately unlike a boxed tag list */
   .chip    { display:inline-flex; align-items:center; border:1px solid #1E2A3D; border-radius:9999px; padding:.22rem .6rem;
@@ -319,16 +326,16 @@ tailwind.config = {
 
     <div class="mt-3 space-y-3">
       <section class="border border-line" aria-label="Governance, Risk and Compliance">
-        <div class="flex items-center justify-between gap-3 border-b border-line bg-bg/60 px-3 py-2.5">
-          <span class="flex min-w-0 items-center gap-2.5"><i data-lucide="shield-check" class="h-4 w-4 shrink-0 text-accent"></i><span class="min-w-0"><span class="t-label block text-ink">Governance, Risk &amp; Compliance</span><span class="t-meta mt-0.5 block truncate text-faint">Audits against PCI DSS, UK GDPR and NIST CSF</span></span></span>
+        <div class="grp-head flex items-center justify-between gap-3 border-b border-line px-4 py-4">
+          <span class="flex min-w-0 items-center gap-3.5"><span class="grp-icon"><i data-lucide="shield-check" class="h-5 w-5 text-accent"></i></span><span class="min-w-0"><span class="t-group block">Governance, Risk &amp; Compliance</span><span class="grp-sub mt-1 block truncate">Audits against PCI DSS, UK GDPR and NIST CSF</span></span></span>
           <span class="t-meta shrink-0 border border-line px-2 py-0.5 text-accent">2 audits</span>
         </div>
         <button data-modal="mBotium" class="row flex w-full items-center gap-3 px-3 py-2.5 text-left"><span class="t-meta w-5 shrink-0">01</span><span class="min-w-0 flex-1"><span class="t-meta block">Controls &amp; compliance · retail</span><span class="t-item mt-0.5 block truncate text-ink"><span class="text-accent">&#9733; </span>Botium Toys Security Audit</span><span class="mt-1.5 flex flex-wrap gap-1"><span class="chip">PCI DSS</span><span class="chip">GDPR</span><span class="chip">Risk register</span></span></span><span class="arrow t-meta shrink-0 text-accent">&#8599;</span></button>
         <button data-modal="mMeridian" class="row flex w-full items-center gap-3 px-3 py-2.5 text-left"><span class="t-meta w-5 shrink-0">02</span><span class="min-w-0 flex-1"><span class="t-meta block">End to end internal audit · healthcare</span><span class="t-item mt-0.5 block truncate text-ink">Meridian Health Partners Controls Audit</span><span class="mt-1.5 flex flex-wrap gap-1"><span class="chip">NIST CSF</span><span class="chip">Risk register</span><span class="chip">Roadmap</span></span></span><span class="arrow t-meta shrink-0 text-accent">&#8599;</span></button>
       </section>
       <section class="border border-line" aria-label="Incident Response and SOC">
-        <div class="flex items-center justify-between gap-3 border-b border-line bg-bg/60 px-3 py-2.5">
-          <span class="flex min-w-0 items-center gap-2.5"><i data-lucide="siren" class="h-4 w-4 shrink-0 text-accent"></i><span class="min-w-0"><span class="t-label block text-ink">Incident Response &amp; SOC</span><span class="t-meta mt-0.5 block truncate text-faint">Alert triage, containment and incident reports</span></span></span>
+        <div class="grp-head flex items-center justify-between gap-3 border-b border-line px-4 py-4">
+          <span class="flex min-w-0 items-center gap-3.5"><span class="grp-icon"><i data-lucide="siren" class="h-5 w-5 text-accent"></i></span><span class="min-w-0"><span class="t-group block">Incident Response &amp; SOC</span><span class="grp-sub mt-1 block truncate">Alert triage, containment and incident reports</span></span></span>
           <span class="t-meta shrink-0 border border-line px-2 py-0.5 text-accent">3 cases</span>
         </div>
         <button data-modal="mSoc" class="row flex w-full items-center gap-3 px-3 py-2.5 text-left"><span class="t-meta w-5 shrink-0">03</span><span class="min-w-0 flex-1"><span class="t-meta block">SOC simulation · alert SOC114</span><span class="t-item mt-0.5 block truncate text-ink"><span class="text-accent">&#9733; </span>Phishing Defence &amp; Malware Containment</span><span class="mt-1.5 flex flex-wrap gap-1"><span class="chip">Alert triage</span><span class="chip">CVE-2017-11882</span><span class="chip">Containment</span></span></span><span class="arrow t-meta shrink-0 text-accent">&#8599;</span></button>
@@ -336,8 +343,8 @@ tailwind.config = {
         <button data-modal="mBrute" class="row flex w-full items-center gap-3 px-3 py-2.5 text-left"><span class="t-meta w-5 shrink-0">05</span><span class="min-w-0 flex-1"><span class="t-meta block">Incident report · OS hardening</span><span class="t-item mt-0.5 block truncate text-ink">Brute Force Attack &amp; Malicious Redirect</span><span class="mt-1.5 flex flex-wrap gap-1"><span class="chip">Access control</span><span class="chip">tcpdump</span><span class="chip">MFA</span></span></span><span class="arrow t-meta shrink-0 text-accent">&#8599;</span></button>
       </section>
       <section class="border border-line" aria-label="Technical Analysis">
-        <div class="flex items-center justify-between gap-3 border-b border-line bg-bg/60 px-3 py-2.5">
-          <span class="flex min-w-0 items-center gap-2.5"><i data-lucide="terminal" class="h-4 w-4 shrink-0 text-accent"></i><span class="min-w-0"><span class="t-label block text-ink">Technical Analysis</span><span class="t-meta mt-0.5 block truncate text-faint">Packet capture, Linux and SQL, hands on</span></span></span>
+        <div class="grp-head flex items-center justify-between gap-3 border-b border-line px-4 py-4">
+          <span class="flex min-w-0 items-center gap-3.5"><span class="grp-icon"><i data-lucide="terminal" class="h-5 w-5 text-accent"></i></span><span class="min-w-0"><span class="t-group block">Technical Analysis</span><span class="grp-sub mt-1 block truncate">Packet capture, Linux and SQL, hands on</span></span></span>
           <span class="t-meta shrink-0 border border-line px-2 py-0.5 text-accent">3 labs</span>
         </div>
         <button data-modal="mShark" class="row flex w-full items-center gap-3 px-3 py-2.5 text-left"><span class="t-meta w-5 shrink-0">06</span><span class="min-w-0 flex-1"><span class="t-meta block">Network traffic analysis</span><span class="t-item mt-0.5 block truncate text-ink">Wireshark DNS Outage Investigation</span><span class="mt-1.5 flex flex-wrap gap-1"><span class="chip">DNS</span><span class="chip">UDP/ICMP</span><span class="chip">Packet capture</span></span></span><span class="arrow t-meta shrink-0 text-accent">&#8599;</span></button>
