@@ -256,8 +256,13 @@ tailwind.config = {
           </div>
         </div>
 
-        <p class="t-meta mt-4 text-accent">Google Cybersecurity Professional Certificate</p>
-        <button data-modal="mCerts" class="t-meta mt-1 text-body underline-offset-2 hover:text-accent hover:underline">4 certificates · view</button>
+        <button data-modal="mCerts" class="row mt-4 flex w-full items-center gap-3 border border-line px-3 py-3 text-left transition-colors hover:border-accent" style="border-bottom:1px solid #1E2A3D">
+          <span class="org" style="width:3rem;height:3rem" data-org="google" data-org-label="G" data-org-name="Google"></span>
+          <span class="min-w-0 flex-1">
+            <span class="block text-accent" style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:1.05rem;line-height:1.3;letter-spacing:-.018em">Google Cybersecurity Professional Certificate</span>
+            <span class="t-meta mt-1 block text-body" style="font-size:.75rem">4 certificates &middot; view &#8599;</span>
+          </span>
+        </button>
       </div>
 
       <!-- Toolchain -->
