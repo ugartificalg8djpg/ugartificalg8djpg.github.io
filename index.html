@@ -70,6 +70,7 @@ tailwind.config = {
 
   .row { position:relative; border-bottom:1px solid #16202F; transition:background-color .2s ease; }
   .row:last-child { border-bottom:0; }
+  .row.border:last-child { border-bottom:1px solid #1E2A3D; }  /* boxed tiles keep all four edges */
   .row::before { content:""; position:absolute; left:0; top:0; bottom:0; width:2px; background:#4FC3F7;
                  transform:scaleY(0); transform-origin:center; transition:transform .25s ease; }
   .row:hover { background:linear-gradient(90deg, rgba(79,195,247,.06), transparent 60%); }
@@ -369,14 +370,6 @@ tailwind.config = {
     </div>
 
     <div class="mt-2 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-      <button data-modal="mExpLab" class="row flex items-start gap-2.5 border border-line p-3 text-left">
-        <span class="org org-sm mt-0.5" data-org="lab" data-org-label="SL" data-org-name="Home SOC Lab"></span>
-        <span class="min-w-0">
-          <span class="t-item block truncate text-ink">Home SOC Lab</span>
-          <span class="t-meta mt-1 block">Splunk / Ubuntu · Independent</span>
-          <span class="t-meta mt-0.5 block text-faint">May 2026 - Present</span>
-        </span>
-      </button>
       <button data-modal="mExpSim" class="row flex items-start gap-2.5 border border-line p-3 text-left">
         <span class="org org-sm mt-0.5" data-org="letsdefend" data-org-label="LD" data-org-name="LetsDefend"></span>
         <span class="min-w-0">
@@ -385,12 +378,12 @@ tailwind.config = {
           <span class="t-meta mt-0.5 block text-faint">Jun 2026 - Present</span>
         </span>
       </button>
-      <button data-modal="mExpIntern" class="row flex items-start gap-2.5 border border-line p-3 text-left">
-        <span class="org org-sm mt-0.5" data-org="rcj" data-org-label="RC" data-org-name="Reimagining Criminal Justice"></span>
+      <button data-modal="mExpLab" class="row flex items-start gap-2.5 border border-line p-3 text-left">
+        <span class="org org-sm mt-0.5" data-org="lab" data-org-label="SL" data-org-name="Home SOC Lab"></span>
         <span class="min-w-0">
-          <span class="t-item block truncate text-ink">Research &amp; Comms Intern</span>
-          <span class="t-meta mt-1 block">Reimagining Criminal Justice</span>
-          <span class="t-meta mt-0.5 block text-faint">Jan 2025 - Apr 2025</span>
+          <span class="t-item block truncate text-ink">Home SOC Lab</span>
+          <span class="t-meta mt-1 block">Splunk / Ubuntu · Independent</span>
+          <span class="t-meta mt-0.5 block text-faint">May 2026 - Present</span>
         </span>
       </button>
       <button data-modal="mExpCoop" class="row flex items-start gap-2.5 border border-line p-3 text-left">
@@ -407,6 +400,14 @@ tailwind.config = {
           <span class="t-item block truncate text-ink">Customer Assistant</span>
           <span class="t-meta mt-1 block">Tesco · Part time</span>
           <span class="t-meta mt-0.5 block text-faint">Sep 2025 - Nov 2025</span>
+        </span>
+      </button>
+      <button data-modal="mExpIntern" class="row flex items-start gap-2.5 border border-line p-3 text-left">
+        <span class="org org-sm mt-0.5" data-org="rcj" data-org-label="RC" data-org-name="Reimagining Criminal Justice"></span>
+        <span class="min-w-0">
+          <span class="t-item block truncate text-ink">Research &amp; Comms Intern</span>
+          <span class="t-meta mt-1 block">Reimagining Criminal Justice</span>
+          <span class="t-meta mt-0.5 block text-faint">Jan 2025 - Apr 2025</span>
         </span>
       </button>
       <button data-modal="mExpCaris" class="row flex items-start gap-2.5 border border-line p-3 text-left">
